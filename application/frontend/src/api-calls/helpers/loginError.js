@@ -1,4 +1,4 @@
-import { initialState } from "../../context/initialState";
+import { loggedOutState } from "../../context/initialState";
 
 export default function error(err) {
   localStorage.removeItem("token");
@@ -11,7 +11,7 @@ export default function error(err) {
   if (errors.non_field_errors) messages.push(errors.non_field_errors);
 
   return {
-    newUserState: initialState,
+    newUserState: loggedOutState,
     messages: messages,
   };
 }

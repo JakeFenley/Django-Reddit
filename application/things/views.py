@@ -30,12 +30,12 @@ class ListComments(viewsets.ModelViewSet):
 class SubredditView(viewsets.ModelViewSet):
     serializer_class = GetPostSerializer
     http_method_names = ['get']
-    queryset = Post.objects.all()
 
     def get_queryset(self):
-        subreddit = self.request.GET.get('subreddit', None)
-        if subreddit is not None:
-            posts = Post.objects.filter(subreddit_id=subreddit)
+        name = self.request.GET.get('subreddit', None)
+        if name is not None:
+            subreddit = Subreddit.objects.get(name__icontains=name)
+            posts = Post.objects.filter(subreddit_id=subreddit.id)
             return posts
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -67,7 +67,8 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
-        post = serializer.save(owner=self.request.user)
+        profile = Profile.objects.get(user_id=self.request.user.id)
+        post = serializer.save(owner=self.request.user, author_profile=profile)
         return Response(post)
 
     def update(self, request, *args, **kwargs):
@@ -125,21 +126,29 @@ class CreateUpdateDestroyComment(viewsets.ModelViewSet):
 
 class VoteView(viewsets.ModelViewSet):
     serializer_class = VoteSerializer
-    queryset = Vote.objects.all()
-    http_method_names = ['put']
+    http_method_names = ['get', 'put']
 
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly
     ]
 
+    def get_queryset(self):
+        qs = Vote.objects.filter(user=self.request.user)
+        return qs
+
     def _update_vote(self, vote, value, submission, profile):
-        change = vote.value * -1 + value
+        if vote.value == value:
+            change = 0
+        else:
+            change = vote.value * -1 + value
+
         vote.value = value
         submission.score += change
         profile.karma += change
         submission.save()
         profile.save()
         vote.save()
+        return submission.score
 
     def put(self, request, *args, **kwargs):
         serializer = self.get_serializer(
@@ -150,7 +159,7 @@ class VoteView(viewsets.ModelViewSet):
         value = serializer.validated_data['value']
 
         if value < -1 or value > 1:
-            return Response(status=400, data={"error": "Invalid value given"})
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "Invalid value given"})
 
         if comment_id is None:
             submission = Post.objects.get(id=post_id)
@@ -163,18 +172,25 @@ class VoteView(viewsets.ModelViewSet):
         # Update Vote object
         if comment_id is None and Vote.objects.filter(user=user, post_id=post_id).exists():
             vote = Vote.objects.get(user=user, post_id=post_id)
-            self._update_vote(vote, value, submission, profile)
+            new_score = self._update_vote(vote, value, submission, profile)
+            serializer.validated_data['updated_value'] = new_score
             return Response(serializer.data)
 
         elif comment_id is not None and Vote.objects.filter(user=user, comment_id=comment_id).exists():
             vote = Vote.objects.get(user=user, comment_id=comment_id)
-            self._update_vote(vote, value, submission, profile)
+            new_score = self._update_vote(vote, value, submission, profile)
+            serializer.validated_data['updated_value'] = new_score
             return Response(serializer.data)
 
         # Create new Vote object if none exists
+        new_serializer = self.get_serializer(
+            data=request.data)
+        new_serializer.is_valid(raise_exception=True)
+        vote = serializer.save(user=user)
         submission.score += value
+        new_serializer.validated_data['updated_value'] = submission.score
         profile.karma += value
+        submission.votes.add(vote)
         submission.save()
         profile.save()
-        vote = serializer.save(user=user)
-        return Response(serializer.data)
+        return Response(new_serializer.data)

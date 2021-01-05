@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import Header from "./layouts/Header";
-import Login from "./accounts/Login";
-import Register from "./accounts/Register";
-import "./styles.scss";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalContext";
 import { getUser } from "../api-calls/requests/getUser";
-import { initialState, initialErrorState } from "../context/initialState";
+import {
+  initialState,
+  initialErrorState,
+  initialViewState,
+  loggedOutState,
+} from "../context/initialState";
 import { Provider as AlertProvider, positions } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layouts/Alerts";
+import Wrapper from "./Wrapper";
+import "./styles.scss";
 
 export default function App() {
   const [userState, setUserState] = useState(initialState);
   const [alertMessages, setAlertMessages] = useState(initialErrorState);
+  const [viewState, setViewState] = useState(initialViewState);
 
   const options = {
     position: positions.TOP_CENTER,
@@ -25,24 +29,26 @@ export default function App() {
     if (localStorage.token && !userState.isAuthenticated) {
       const response = await getUser(localStorage.token);
       setUserState(response.newUserState);
+    } else if (!localStorage.token) {
+      setUserState(loggedOutState);
     }
   }, [userState.user]);
 
   return (
     <Router>
       <GlobalContext.Provider
-        value={{ userState, setUserState, alertMessages, setAlertMessages }}
+        value={{
+          userState,
+          setUserState,
+          alertMessages,
+          setAlertMessages,
+          viewState,
+          setViewState,
+        }}
       >
         <AlertProvider template={AlertTemplate} {...options}>
           <Alerts />
-          <div className="wrapper">
-            <Header />
-            <Switch>
-              {/* <Route exact path="/" component={Home} /> */}
-              <Route exact path="/register" component={Register} />
-              <Route exact path="/login" component={Login} />
-            </Switch>
-          </div>
+          <Wrapper />
         </AlertProvider>
       </GlobalContext.Provider>
     </Router>

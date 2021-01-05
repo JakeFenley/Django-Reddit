@@ -6,6 +6,7 @@ export default function success(response, token = response.data.token) {
       user: username,
       token: token,
       isAuthenticated: true,
+      isLoading: false,
     },
     messages: [`Hello ${username}`],
   };

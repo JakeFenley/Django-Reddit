@@ -17,12 +17,15 @@ class Subreddit(models.Model):
 class Post(models.Model):
     owner = models.ForeignKey(
         User, related_name="post", to_field="username",   on_delete=models.CASCADE)
+    author_profile = models.ForeignKey(
+        Profile, related_name="post", to_field="user",   on_delete=models.CASCADE)
     title = models.CharField(max_length=250, blank=True)
     text = models.CharField(max_length=4000, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     score = models.IntegerField(default=0)
     subreddit = models.ForeignKey(Subreddit, on_delete=models.CASCADE)
+    votes = models.ManyToManyField('Vote', related_name="post_votes")
 
 
 class Comment(models.Model):
