@@ -5,18 +5,17 @@ import { GlobalContext } from "../../../context/GlobalContext";
 import VoteButton from "./VoteButton";
 import Interweave from "interweave";
 import { UrlMatcher } from "interweave-autolink";
+import { putVote } from "../../../api-calls/requests/putVote";
 
 export default class Comments extends Component {
   static contextType = GlobalContext;
   static propTypes = {
     comments: PropTypes.array.isRequired,
+    updateCommentVote: PropTypes.func.isRequired,
+    updateComments: PropTypes.func.isRequired,
   };
 
-  state = {
-    commentFormOpen: false,
-  };
-
-  async submitVote(e, direction, postId) {
+  submitVote = async (e, direction, commentId) => {
     const { userState } = this.context;
     let value;
 
@@ -31,17 +30,15 @@ export default class Comments extends Component {
     }
 
     try {
-      // const vote = await putVote(userState.token, value, postId, "post");
-      // this.props.updateVote(postId, vote);
+      const vote = await putVote(userState.token, value, commentId, "comment");
+      this.props.updateCommentVote(commentId, vote);
     } catch (err) {
       console.log(err);
     }
-  }
+  };
 
   render() {
     const { comments } = this.props;
-    const { commentFormOpen } = this.state;
-    const { userState } = this.context;
     return (
       <div className="comments">
         {comments.map((x) => (
@@ -74,23 +71,18 @@ export default class Comments extends Component {
                 />
               </p>
               <p>{x.author_profile.username}</p>
-
-              {userState.isAuthenticated ? (
-                <button
-                  onClick={() => {
-                    this.toggleCommentForm();
-                  }}
-                >
-                  Reply
-                </button>
-              ) : null}
-
-              {commentFormOpen ? (
-                <CommentForm submissionId={x.id} submissionType="comment" />
-              ) : null}
+              <CommentForm
+                submissionId={x.id}
+                submissionType="comment"
+                updateComments={this.props.updateComments}
+              />
             </div>
             <div className="test">
-              <Comments comments={x.comments_field} />
+              <Comments
+                comments={x.comments_field}
+                updateCommentVote={this.props.updateCommentVote}
+                updateComments={this.props.updateComments}
+              />
             </div>
           </Fragment>
         ))}

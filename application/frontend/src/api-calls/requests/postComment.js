@@ -8,7 +8,7 @@ export const postComment = async (token, id, type, text) => {
   if (type === "post") {
     param = `?post_id=${id}`;
   } else if (type === "comment") {
-    param = `?comment_id${id}`;
+    param = `?comment_id=${id}`;
   }
 
   try {

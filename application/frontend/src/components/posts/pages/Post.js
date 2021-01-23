@@ -32,10 +32,9 @@ export default class Post extends Component {
     },
     comments: [],
     vote: null,
-    commentFormOpen: false,
   };
 
-  async submitVote(e, direction, postId) {
+  submitVote = async (e, direction, postId) => {
     const { userState } = this.context;
     let value;
 
@@ -63,9 +62,69 @@ export default class Post extends Component {
     } catch (err) {
       console.log(err);
     }
-  }
+  };
 
-  async consumePost() {
+  updateCommentVote = (id, vote) => {
+    let commentFound = false;
+
+    const updateCommentTree = (comments) => {
+      return comments.map((x) => {
+        if (commentFound) {
+          return x;
+        } else if (x.id === id) {
+          x.score = vote.updated_value;
+          x.votes[0] = {
+            value: vote.value,
+            submission_type: "comment",
+          };
+          commentFound = true;
+          return x;
+        } else if (x.comments_field.length > 0) {
+          x.comments_field = updateCommentTree(x.comments_field);
+          return x;
+        } else {
+          return x;
+        }
+      });
+    };
+
+    const comments = updateCommentTree(this.state.comments);
+
+    this.setState({ comments: comments });
+  };
+
+  updateComments = (parentId, parentType, comment) => {
+    let commentFound = false;
+
+    const updateCommentTree = (comments) => {
+      return comments.map((x) => {
+        if (commentFound) {
+          return x;
+        } else if (x.id === parentId) {
+          x.comments_field = [comment, ...x.comments_field];
+          commentFound = true;
+          return x;
+        } else if (x.comments_field.length > 0) {
+          x.comments_field = updateCommentTree(x.comments_field);
+          return x;
+        } else {
+          return x;
+        }
+      });
+    };
+
+    let comments;
+
+    if (parentType === "post") {
+      comments = [comment, ...this.state.comments];
+    } else {
+      comments = updateCommentTree(this.state.comments);
+    }
+
+    this.setState({ comments: comments });
+  };
+
+  consumePost = async () => {
     const { setViewState, userState } = this.context;
 
     try {
@@ -93,15 +152,7 @@ export default class Post extends Component {
       console.log(err);
       window.location.replace("/");
     }
-  }
-
-  toggleCommentForm() {
-    if (this.state.commentFormOpen) {
-      this.setState({ commentFormOpen: false });
-    } else if (this.context.userState.isAuthenticated) {
-      this.setState({ commentFormOpen: true });
-    }
-  }
+  };
 
   componentDidMount() {
     this.consumePost();
@@ -112,8 +163,8 @@ export default class Post extends Component {
   }
 
   render() {
-    const { comments, vote, commentFormOpen, post } = this.state;
-    const { userState } = this.context;
+    const { comments, vote, post } = this.state;
+
     return (
       <div className="post-view">
         <div className="post">
@@ -123,7 +174,7 @@ export default class Post extends Component {
             componentType={"post"}
             vote={vote}
             post={post}
-            submitVote={this.submitVote.bind(this)}
+            submitVote={this.submitVote}
           />
           <div className="score" data-postid={post.post_id}>
             {post.score}
@@ -134,7 +185,7 @@ export default class Post extends Component {
             componentType={"post"}
             post={post}
             vote={vote}
-            submitVote={this.submitVote.bind(this)}
+            submitVote={this.submitVote}
           />
           <h3>{post.title}</h3>
           <p>
@@ -144,20 +195,17 @@ export default class Post extends Component {
             />
           </p>
           <p>{post.op}</p>
-          {userState.isAuthenticated ? (
-            <button
-              onClick={() => {
-                this.toggleCommentForm();
-              }}
-            >
-              Reply
-            </button>
-          ) : null}
+          <CommentForm
+            submissionId={post.post_id}
+            submissionType="post"
+            updateComments={this.updateComments}
+          />
         </div>
-        {commentFormOpen ? (
-          <CommentForm submissionId={post.post_id} submissionType="post" />
-        ) : null}
-        <Comments comments={comments} vote={vote} />
+        <Comments
+          comments={comments}
+          updateCommentVote={this.updateCommentVote}
+          updateComments={this.updateComments}
+        />
       </div>
     );
   }

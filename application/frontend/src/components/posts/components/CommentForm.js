@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { GlobalContext } from "../../../context/GlobalContext";
 import PropTypes from "prop-types";
 import { postComment } from "../../../api-calls/requests/postComment";
@@ -6,16 +6,18 @@ import { postComment } from "../../../api-calls/requests/postComment";
 export default class CommentForm extends Component {
   static contextType = GlobalContext;
   static propTypes = {
-    postId: PropTypes.number.isRequired,
     submissionType: PropTypes.string.isRequired,
     submissionId: PropTypes.number.isRequired,
+    updateComments: PropTypes.func.isRequired,
+    toggleCommentForm: PropTypes.func.isRequired,
   };
 
   state = {
     submitFailure: false,
+    commentFormOpen: false,
   };
 
-  async handleSubmit(e) {
+  handleSubmit = async (e) => {
     e.preventDefault();
     const { submissionId, submissionType } = this.props;
     const { userState } = this.context;
@@ -28,11 +30,12 @@ export default class CommentForm extends Component {
         submissionType,
         text
       );
-      console.log(comment);
+      this.props.updateComments(submissionId, submissionType, comment);
+      this.toggleCommentForm();
     } else {
       this.setState({ submitFailure: true });
     }
-  }
+  };
 
   placeholderText() {
     if (this.state.submitFailure) {
@@ -42,13 +45,17 @@ export default class CommentForm extends Component {
     }
   }
 
-  render() {
+  toggleCommentForm = () => {
+    if (this.state.commentFormOpen) {
+      this.setState({ commentFormOpen: false });
+    } else if (this.context.userState.isAuthenticated) {
+      this.setState({ commentFormOpen: true });
+    }
+  };
+
+  form = () => {
     return (
-      <form
-        onSubmit={(e) => {
-          this.handleSubmit(e);
-        }}
-      >
+      <form onSubmit={this.handleSubmit}>
         <label htmlFor="comment"></label>
         <textarea
           placeholder={this.placeholderText()}
@@ -59,6 +66,17 @@ export default class CommentForm extends Component {
           Submit
         </button>
       </form>
+    );
+  };
+
+  render() {
+    return (
+      <Fragment>
+        {this.context.userState.isAuthenticated ? (
+          <button onClick={this.toggleCommentForm}>Reply</button>
+        ) : null}
+        {this.state.commentFormOpen ? this.form() : null}
+      </Fragment>
     );
   }
 }

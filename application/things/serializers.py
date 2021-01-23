@@ -39,10 +39,16 @@ class GetCommentsSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    votes = VoteSerializer(read_only=True, many=True)
+    comments_field = RecursiveField(allow_null=True, many=True, read_only=True)
+    author_profile = ProfileSerializer(read_only=True)
+    score = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ('text', 'id')
+        fields = ('id', 'author_profile',  'text', 'created_at',
+                  'score', 'votes', 'comments_field')
+        depth = 1
 
 # Subreddits
 
