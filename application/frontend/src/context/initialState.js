@@ -9,8 +9,8 @@ export const initialErrorState = [];
 
 export const initialViewState = {
   subreddit: null,
-  votes: null,
-  posts: null,
+  subreddits: [],
+  isLoading: true,
 };
 
 export const loggedOutState = {

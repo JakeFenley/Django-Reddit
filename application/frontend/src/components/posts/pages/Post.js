@@ -83,7 +83,7 @@ export default class Post extends Component {
   };
 
   componentDidMount = async () => {
-    const { setViewState, userState } = this.context;
+    const { viewState, setViewState, userState } = this.context;
 
     try {
       const { params } = this.props.match;
@@ -105,7 +105,7 @@ export default class Post extends Component {
         vote: post.votes[0],
         comments: post.comments_field,
       });
-      setViewState({ subreddit: post.subreddit.name });
+      setViewState({ ...viewState, subreddit: post.subreddit.name });
     } catch (err) {
       console.log(err);
       window.location.replace("/");

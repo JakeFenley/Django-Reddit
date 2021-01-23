@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import "./posts.scss";
 import { putVote } from "../../../api-calls/requests/putVote";
 import { Link } from "react-router-dom";
-import VoteButton from "../components/VoteButton";
 import { GlobalContext } from "../../../context/GlobalContext";
+import VoteScoreWrapper from "../components/VoteScoreWrapper";
 
 export default class Posts extends Component {
   static contextType = GlobalContext;
@@ -33,22 +33,8 @@ export default class Posts extends Component {
       <section className="posts">
         {this.props.posts.map((x) => (
           <div key={x.id} className="post">
-            <VoteButton
-              postId={x.id}
-              direction={"upvote"}
-              componentType={"post"}
-              vote={x.votes[0]}
-              post={x}
-              submitVote={this.submitVote}
-            />
-            <div className="score" data-postid={x.id}>
-              {x.score}
-            </div>
-            <VoteButton
-              postId={x.id}
-              direction={"downvote"}
-              componentType={"post"}
-              post={x}
+            <VoteScoreWrapper
+              submission={x}
               vote={x.votes[0]}
               submitVote={this.submitVote}
             />

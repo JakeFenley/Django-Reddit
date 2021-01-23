@@ -7,6 +7,7 @@ import { GlobalContext } from "../../../context/GlobalContext";
 export default function CreatePost() {
   const { userState, viewState } = useContext(GlobalContext);
   const [postId, setPostId] = useState(null);
+  const [subreddit, setSubreddit] = useState(viewState.subreddits[0]);
 
   if (!userState.user && !userState.isLoading) {
     return <Redirect to="/" />;
@@ -25,8 +26,8 @@ export default function CreatePost() {
       userState.token,
       title,
       text,
-      1,
-      "AmItheBadGuy"
+      subreddit.id,
+      subreddit.name
     );
 
     if (response) {
@@ -34,8 +35,26 @@ export default function CreatePost() {
     }
   };
 
+  const handleSelectChange = (e) => {
+    const subreddit = viewState.subreddits.filter((x) => {
+      if (x.name === e.target.value) {
+        return x;
+      }
+    })[0];
+
+    setSubreddit(subreddit);
+  };
+
   return (
     <form onSubmit={handleSubmit}>
+      <label htmlFor="subreddit">Subreddit</label>
+      <select name="subreddit" id="subreddit" onChange={handleSelectChange}>
+        {viewState.subreddits.map((x) => (
+          <option key={x.id} value={x.name}>
+            {x.name}
+          </option>
+        ))}
+      </select>
       <label htmlFor="title">Title</label>
       <input type="text" id="title" name="title" />
       <label htmlFor="text">Text</label>

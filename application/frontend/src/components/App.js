@@ -15,6 +15,7 @@ import Alerts from "./layouts/Alerts";
 import Wrapper from "./Wrapper";
 import "./styles.scss";
 import Loading from "./Loading";
+import { getSubreddits } from "../api-calls/requests/getSubredits";
 
 export default function App() {
   const [userState, setUserState] = useState(initialState);
@@ -26,12 +27,34 @@ export default function App() {
     timeout: 5000,
   };
 
-  useEffect(async () => {
-    if (localStorage.token && !userState.isAuthenticated) {
-      const response = await getUser(localStorage.token);
-      setUserState(response.newUserState);
-    } else if (!localStorage.token) {
-      setUserState(loggedOutState);
+  useEffect(() => {
+    const getUserState = async () => {
+      if (localStorage.token && !userState.isAuthenticated) {
+        const user = await getUser(localStorage.token);
+        setUserState(user.newUserState);
+      } else if (!localStorage.token) {
+        setUserState(loggedOutState);
+      }
+    };
+
+    const getSubredditsState = async () => {
+      try {
+        const subreddits = await getSubreddits();
+        const newState = {
+          ...viewState,
+          subreddits: subreddits,
+          isLoading: false,
+        };
+        setViewState(newState);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getUserState();
+
+    if (viewState.isLoading) {
+      getSubredditsState();
     }
   }, [userState.user]);
 

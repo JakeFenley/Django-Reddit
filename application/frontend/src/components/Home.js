@@ -11,7 +11,7 @@ export default class Home extends Component {
   };
 
   async consumePosts() {
-    const { setViewState, userState } = this.context;
+    const { viewState, setViewState, userState } = this.context;
 
     const token = userState.isAuthenticated ? userState.token : null;
     const posts = await homePosts(token);
@@ -20,10 +20,10 @@ export default class Home extends Component {
       posts: posts,
       userState: this.context.userState,
     });
-    setViewState({ subreddit: "Home" });
+    setViewState({ ...viewState, subreddit: "Home" });
   }
 
-  updateVote(id, vote) {
+  updateVote = (id, vote) => {
     this.setState((state) => {
       let newPosts = [...state.posts];
 
@@ -32,7 +32,7 @@ export default class Home extends Component {
 
         if (post.id === id) {
           post.score = vote.updated_value;
-          post.votes[0].value = vote.value;
+          post.votes = [vote];
           break;
         }
       }
@@ -40,7 +40,7 @@ export default class Home extends Component {
         posts: newPosts,
       };
     });
-  }
+  };
 
   componentDidMount() {
     this.consumePosts();
@@ -53,13 +53,6 @@ export default class Home extends Component {
   }
 
   render() {
-    return (
-      <Posts
-        posts={this.state.posts}
-        updateVote={(id, vote) => {
-          this.updateVote(id, vote);
-        }}
-      />
-    );
+    return <Posts posts={this.state.posts} updateVote={this.updateVote} />;
   }
 }

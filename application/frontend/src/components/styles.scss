@@ -72,7 +72,7 @@ textarea {
   min-height: 200px;
 }
 
-nav {
+nav.main {
   justify-content: space-between;
   display: flex;
   align-items: center;
@@ -110,6 +110,34 @@ nav {
         color: $Black50;
       }
     }
+  }
+}
+
+nav.reddits {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  visibility: hidden;
+  background-color: $White;
+  width: fit-content;
+  height: 30vw;
+  max-height: 1000px;
+  transition: opacity 0.5s ease;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  a {
+    @include SemiBold();
+    display: block;
+    text-decoration: none;
+    font-size: 1.5rem;
+    color: $Black;
+    transition: color 0.5s ease;
+    width: fit-content;
   }
 }
 
