@@ -13,19 +13,8 @@ export default class Posts extends Component {
     updateVote: PropTypes.func,
   };
 
-  async submitVote(e, direction, postId) {
+  submitVote = async (postId, value) => {
     const { userState } = this.context;
-    let value;
-
-    if (e.target.dataset.selected === "true") {
-      value = 0;
-    } else if (direction === "upvote") {
-      e.target.dataset.selected = "false";
-      value = 1;
-    } else {
-      e.target.dataset.selected = "false";
-      value = -1;
-    }
 
     try {
       const vote = await putVote(userState.token, value, postId, "post");
@@ -33,7 +22,7 @@ export default class Posts extends Component {
     } catch (err) {
       console.log(err);
     }
-  }
+  };
 
   getPostLink = (x) => {
     return `/r/${x.subreddit.name}/${x.id}`;
@@ -50,7 +39,7 @@ export default class Posts extends Component {
               componentType={"post"}
               vote={x.votes[0]}
               post={x}
-              submitVote={this.submitVote.bind(this)}
+              submitVote={this.submitVote}
             />
             <div className="score" data-postid={x.id}>
               {x.score}
@@ -61,7 +50,7 @@ export default class Posts extends Component {
               componentType={"post"}
               post={x}
               vote={x.votes[0]}
-              submitVote={this.submitVote.bind(this)}
+              submitVote={this.submitVote}
             />
             <h3>{x.title}</h3>
             <p>{x.text}</p>

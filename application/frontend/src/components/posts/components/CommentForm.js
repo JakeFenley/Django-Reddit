@@ -7,9 +7,8 @@ export default class CommentForm extends Component {
   static contextType = GlobalContext;
   static propTypes = {
     submissionType: PropTypes.string.isRequired,
-    submissionId: PropTypes.number.isRequired,
-    updateComments: PropTypes.func.isRequired,
-    toggleCommentForm: PropTypes.func.isRequired,
+    submissionId: PropTypes.number,
+    addComment: PropTypes.func.isRequired,
   };
 
   state = {
@@ -30,7 +29,7 @@ export default class CommentForm extends Component {
         submissionType,
         text
       );
-      this.props.updateComments(submissionId, submissionType, comment);
+      this.props.addComment(submissionId, submissionType, comment);
       this.toggleCommentForm();
     } else {
       this.setState({ submitFailure: true });

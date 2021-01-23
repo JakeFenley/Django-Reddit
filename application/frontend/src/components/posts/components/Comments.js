@@ -2,36 +2,25 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import CommentForm from "./CommentForm";
 import { GlobalContext } from "../../../context/GlobalContext";
-import VoteButton from "./VoteButton";
 import Interweave from "interweave";
 import { UrlMatcher } from "interweave-autolink";
 import { putVote } from "../../../api-calls/requests/putVote";
+import VoteScoreWrapper from "./VoteScoreWrapper";
 
 export default class Comments extends Component {
   static contextType = GlobalContext;
   static propTypes = {
     comments: PropTypes.array.isRequired,
-    updateCommentVote: PropTypes.func.isRequired,
-    updateComments: PropTypes.func.isRequired,
+    createUpdateCommentVote: PropTypes.func.isRequired,
+    addComment: PropTypes.func.isRequired,
   };
 
-  submitVote = async (e, direction, commentId) => {
+  submitVote = async (commentId, value) => {
     const { userState } = this.context;
-    let value;
-
-    if (e.target.dataset.selected === "true") {
-      value = 0;
-    } else if (direction === "upvote") {
-      e.target.dataset.selected = "false";
-      value = 1;
-    } else {
-      e.target.dataset.selected = "false";
-      value = -1;
-    }
 
     try {
       const vote = await putVote(userState.token, value, commentId, "comment");
-      this.props.updateCommentVote(commentId, vote);
+      this.props.createUpdateCommentVote(commentId, vote);
     } catch (err) {
       console.log(err);
     }
@@ -44,22 +33,8 @@ export default class Comments extends Component {
         {comments.map((x) => (
           <Fragment key={x.id}>
             <div className="comment">
-              <VoteButton
-                postId={x.id}
-                direction={"upvote"}
-                componentType={"comment"}
-                vote={x.votes[0]}
-                post={x}
-                submitVote={this.submitVote}
-              />
-              <div className="score" data-postid={x.id}>
-                {x.score}
-              </div>
-              <VoteButton
-                postId={x.id}
-                direction={"downvote"}
-                componentType={"comment"}
-                post={x}
+              <VoteScoreWrapper
+                submission={x}
                 vote={x.votes[0]}
                 submitVote={this.submitVote}
               />
@@ -74,14 +49,14 @@ export default class Comments extends Component {
               <CommentForm
                 submissionId={x.id}
                 submissionType="comment"
-                updateComments={this.props.updateComments}
+                addComment={this.props.addComment}
               />
             </div>
             <div className="test">
               <Comments
                 comments={x.comments_field}
-                updateCommentVote={this.props.updateCommentVote}
-                updateComments={this.props.updateComments}
+                createUpdateCommentVote={this.props.createUpdateCommentVote}
+                addComment={this.props.addComment}
               />
             </div>
           </Fragment>

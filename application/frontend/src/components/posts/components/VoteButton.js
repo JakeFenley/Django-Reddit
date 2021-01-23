@@ -10,8 +10,7 @@ export default class VoteButton extends Component {
     submitVote: PropTypes.func.isRequired,
     vote: PropTypes.object,
     post: PropTypes.object,
-    postId: PropTypes.number,
-    componentType: PropTypes.string.isRequired,
+    submissionId: PropTypes.number,
     direction: PropTypes.string.isRequired,
   };
 
@@ -45,16 +44,31 @@ export default class VoteButton extends Component {
     }
   }
 
+  handleVoteClick = (e) => {
+    const { submitVote, direction, submissionId } = this.props;
+    let value;
+
+    if (e.target.dataset.selected === "true") {
+      value = 0;
+    } else if (direction === "upvote") {
+      e.target.dataset.selected = "false";
+      value = 1;
+    } else {
+      e.target.dataset.selected = "false";
+      value = -1;
+    }
+
+    submitVote(submissionId, value);
+  };
+
   createButton() {
-    const { submitVote, direction, postId } = this.props;
+    const { direction } = this.props;
 
     return (
       <button
         className={this.state.className}
         data-selected={this.state.dataSelected}
-        onClick={(e) => {
-          submitVote(e, direction, postId);
-        }}
+        onClick={this.handleVoteClick}
       >
         {direction === "upvote" ? UpArrow() : DownArrow()}
       </button>

@@ -6,9 +6,10 @@ import PropTypes from "prop-types";
 import { GlobalContext } from "../../../context/GlobalContext";
 import { getPost } from "../../../api-calls/requests/getPost";
 import { putVote } from "../../../api-calls/requests/putVote";
-import VoteButton from "../components/VoteButton";
 import CommentForm from "../components/CommentForm";
 import "./posts.scss";
+import updateCommentTree from "../updateCommentTree";
+import VoteScoreWrapper from "../components/VoteScoreWrapper";
 
 export default class Post extends Component {
   static contextType = GlobalContext;
@@ -24,7 +25,7 @@ export default class Post extends Component {
 
   state = {
     post: {
-      post_id: null,
+      id: null,
       title: null,
       text: null,
       op: null,
@@ -34,19 +35,8 @@ export default class Post extends Component {
     vote: null,
   };
 
-  submitVote = async (e, direction, postId) => {
+  submitVote = async (postId, value) => {
     const { userState } = this.context;
-    let value;
-
-    if (e.target.dataset.selected === "true") {
-      value = 0;
-    } else if (direction === "upvote") {
-      e.target.dataset.selected = "false";
-      value = 1;
-    } else {
-      e.target.dataset.selected = "false";
-      value = -1;
-    }
 
     try {
       const vote = await putVote(userState.token, value, postId, "post");
@@ -64,67 +54,35 @@ export default class Post extends Component {
     }
   };
 
-  updateCommentVote = (id, vote) => {
-    let commentFound = false;
-
-    const updateCommentTree = (comments) => {
-      return comments.map((x) => {
-        if (commentFound) {
-          return x;
-        } else if (x.id === id) {
-          x.score = vote.updated_value;
-          x.votes[0] = {
-            value: vote.value,
-            submission_type: "comment",
-          };
-          commentFound = true;
-          return x;
-        } else if (x.comments_field.length > 0) {
-          x.comments_field = updateCommentTree(x.comments_field);
-          return x;
-        } else {
-          return x;
-        }
-      });
-    };
-
-    const comments = updateCommentTree(this.state.comments);
+  createUpdateCommentVote = (id, vote) => {
+    const comments = updateCommentTree(
+      this.state.comments,
+      id,
+      { vote: vote },
+      "createUpdateCommentVote"
+    );
 
     this.setState({ comments: comments });
   };
 
-  updateComments = (parentId, parentType, comment) => {
-    let commentFound = false;
-
-    const updateCommentTree = (comments) => {
-      return comments.map((x) => {
-        if (commentFound) {
-          return x;
-        } else if (x.id === parentId) {
-          x.comments_field = [comment, ...x.comments_field];
-          commentFound = true;
-          return x;
-        } else if (x.comments_field.length > 0) {
-          x.comments_field = updateCommentTree(x.comments_field);
-          return x;
-        } else {
-          return x;
-        }
-      });
-    };
-
+  addComment = (parentId, parentType, newComment) => {
     let comments;
 
     if (parentType === "post") {
-      comments = [comment, ...this.state.comments];
+      comments = [newComment, ...this.state.comments];
     } else {
-      comments = updateCommentTree(this.state.comments);
+      comments = updateCommentTree(
+        this.state.comments,
+        parentId,
+        { newComment: newComment },
+        "addComment"
+      );
     }
 
     this.setState({ comments: comments });
   };
 
-  consumePost = async () => {
+  componentDidMount = async () => {
     const { setViewState, userState } = this.context;
 
     try {
@@ -138,7 +96,7 @@ export default class Post extends Component {
 
       this.setState({
         post: {
-          post_id: post.id,
+          id: post.id,
           title: post.title,
           text: post.text,
           op: post.author_profile.username,
@@ -154,36 +112,14 @@ export default class Post extends Component {
     }
   };
 
-  componentDidMount() {
-    this.consumePost();
-  }
-
-  loadingElement() {
-    return <div className="loading">Loading....</div>;
-  }
-
   render() {
     const { comments, vote, post } = this.state;
 
     return (
       <div className="post-view">
         <div className="post">
-          <VoteButton
-            postId={post.post_id}
-            direction={"upvote"}
-            componentType={"post"}
-            vote={vote}
-            post={post}
-            submitVote={this.submitVote}
-          />
-          <div className="score" data-postid={post.post_id}>
-            {post.score}
-          </div>
-          <VoteButton
-            postId={post.post_id}
-            direction={"downvote"}
-            componentType={"post"}
-            post={post}
+          <VoteScoreWrapper
+            submission={post}
             vote={vote}
             submitVote={this.submitVote}
           />
@@ -196,15 +132,15 @@ export default class Post extends Component {
           </p>
           <p>{post.op}</p>
           <CommentForm
-            submissionId={post.post_id}
+            submissionId={post.id}
             submissionType="post"
-            updateComments={this.updateComments}
+            addComment={this.addComment}
           />
         </div>
         <Comments
           comments={comments}
-          updateCommentVote={this.updateCommentVote}
-          updateComments={this.updateComments}
+          createUpdateCommentVote={this.createUpdateCommentVote}
+          addComment={this.addComment}
         />
       </div>
     );
