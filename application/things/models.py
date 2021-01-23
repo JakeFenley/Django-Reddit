@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from .validators import *
 
 
 class Profile(models.Model):
@@ -10,38 +11,43 @@ class Profile(models.Model):
 
 class Subreddit(models.Model):
     owner = models.ForeignKey(
-        User, related_name="subreddit", to_field="username",   on_delete=models.CASCADE)
+        User, related_name="subreddits", to_field="username",   on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True)
+
+
+class Vote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    value = models.IntegerField(validators=[validate_score])
+    submission_type = models.CharField(max_length=8, validators=[
+                                       validate_submission_type])
 
 
 class Post(models.Model):
     owner = models.ForeignKey(
-        User, related_name="post", to_field="username",   on_delete=models.CASCADE)
+        User, related_name="posts", to_field="username", on_delete=models.CASCADE, null=True)
     author_profile = models.ForeignKey(
-        Profile, related_name="post", to_field="user",   on_delete=models.CASCADE)
+        Profile, related_name="posts", to_field="user", on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=250, blank=True)
     text = models.CharField(max_length=4000, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     score = models.IntegerField(default=0)
     subreddit = models.ForeignKey(Subreddit, on_delete=models.CASCADE)
-    votes = models.ManyToManyField('Vote', related_name="post_votes")
+    subreddit_name = models.CharField(max_length=50, null=True)
+    votes = models.ManyToManyField(Vote, related_name="posts")
+    comments_field = models.ManyToManyField(
+        'Comment', related_name="post")
 
 
 class Comment(models.Model):
     owner = models.ForeignKey(
-        User, related_name="comment", to_field="username",  on_delete=models.CASCADE)
+        User, related_name="comments", to_field="username",  on_delete=models.CASCADE, null=True)
+    author_profile = models.ForeignKey(
+        Profile, related_name="comments", to_field="user",   on_delete=models.CASCADE, null=True)
     text = models.CharField(max_length=4000, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     score = models.IntegerField(default=0)
-    parent_comment = models.ForeignKey(
-        'self', on_delete=models.CASCADE)
-    parent_post = models.ForeignKey(Post, on_delete=models.CASCADE)
-
-
-class Vote(models.Model):
-    value = models.IntegerField()
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comments_field = models.ManyToManyField(
+        'self', related_name="comments", symmetrical=False)
+    votes = models.ManyToManyField(Vote, related_name="comments")

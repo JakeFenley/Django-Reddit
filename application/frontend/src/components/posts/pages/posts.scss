@@ -1,6 +1,7 @@
 $BoxShadow: rgb(73, 73, 73);
 
-.posts {
+.posts,
+.post-view {
   margin: 0 auto;
   max-width: 600px;
 }
@@ -15,6 +16,18 @@ $BoxShadow: rgb(73, 73, 73);
 
 .score {
   font-size: 2rem;
+}
+
+.comment {
+  margin: 2.5rem 0;
+  padding: 2.5rem;
+  border: 1px solid black;
+  border-radius: 15px;
+  box-shadow: 6px 6px 8px -5px $BoxShadow;
+}
+
+.comments {
+  margin-left: 2.5rem;
 }
 
 button {

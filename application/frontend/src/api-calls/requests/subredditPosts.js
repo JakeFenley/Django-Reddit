@@ -4,7 +4,7 @@ import headerConfig from "../helpers/headerConfig";
 export const subredditPosts = async (subreddit) => {
   try {
     const response = await axios.get(
-      `/api/subreddit/?subreddit=${subreddit}`,
+      `/api/getSubredditPosts/?subreddit=${subreddit}`,
       headerConfig()
     );
     return response.data;

@@ -31,7 +31,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
+    "interweave": "^12.6.0",
+    "interweave-autolink": "^4.3.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-alert-template-basic": "^1.0.0",

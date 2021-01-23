@@ -14,6 +14,7 @@ import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layouts/Alerts";
 import Wrapper from "./Wrapper";
 import "./styles.scss";
+import Loading from "./Loading";
 
 export default function App() {
   const [userState, setUserState] = useState(initialState);
@@ -48,7 +49,7 @@ export default function App() {
       >
         <AlertProvider template={AlertTemplate} {...options}>
           <Alerts />
-          <Wrapper />
+          {userState.isLoading ? <Loading /> : <Wrapper />}
         </AlertProvider>
       </GlobalContext.Provider>
     </Router>

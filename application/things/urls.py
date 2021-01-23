@@ -1,4 +1,5 @@
 from rest_framework import routers
+from django.urls import path, include
 from .views import *
 
 router = routers.DefaultRouter()
@@ -9,6 +10,10 @@ router.register('post',
 router.register('comment',
                 CreateUpdateDestroyComment, 'create_update_comment')
 router.register('vote', VoteView, 'vote')
-router.register('subreddit', SubredditView, 'subreddit_posts')
-router.register('createsubreddit', CreateSubreddit, 'create_subreddit')
-urlpatterns = router.urls
+router.register('getSubredditPosts', SubredditPosts, 'subreddit_posts')
+router.register('getPost', GetPost, 'get_post')
+router.register('subreddit', SubredditView, 'subreddit')
+
+urlpatterns = [
+    path('', include(router.urls))
+]

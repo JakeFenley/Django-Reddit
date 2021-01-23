@@ -1,41 +1,64 @@
 import React, { Component } from "react";
-import { getVotes } from "../api-calls/requests/getVotes";
 import { homePosts } from "../api-calls/requests/homePosts";
-import Posts from "./posts/Posts";
+import Posts from "./posts/pages/Posts";
 import { GlobalContext } from "../context/GlobalContext";
 
 export default class Home extends Component {
   static contextType = GlobalContext;
   state = {
     posts: [],
-    votes: [],
+    userState: this.context.userState,
   };
 
-  updateVotes(votes) {
-    this.setState({ votes: votes });
+  async consumePosts() {
+    const { setViewState, userState } = this.context;
+
+    const token = userState.isAuthenticated ? userState.token : null;
+    const posts = await homePosts(token);
+
+    this.setState({
+      posts: posts,
+      userState: this.context.userState,
+    });
+    setViewState({ subreddit: "Home" });
+  }
+
+  updateVote(id, vote) {
+    this.setState((state) => {
+      let newPosts = [...state.posts];
+
+      for (let i = 0; i < newPosts.length; i++) {
+        const post = newPosts[i];
+
+        if (post.id === id) {
+          post.score = vote.updated_value;
+          post.votes[0].value = vote.value;
+          break;
+        }
+      }
+      return {
+        posts: newPosts,
+      };
+    });
   }
 
   componentDidMount() {
-    const { setViewState } = this.context;
-    let votes = null;
+    this.consumePosts();
+  }
 
-    (async () => {
-      const posts = await homePosts();
-      if (localStorage.token) {
-        votes = await getVotes(localStorage.token);
-      }
-
-      this.setState({ posts: posts, votes: votes });
-      setViewState({ subreddit: "Home" });
-    })();
+  componentDidUpdate() {
+    if (this.context.userState !== this.state.userState) {
+      this.consumePosts();
+    }
   }
 
   render() {
     return (
       <Posts
         posts={this.state.posts}
-        votes={this.state.votes}
-        updateVotes={this.updateVotes.bind(this)}
+        updateVote={(id, vote) => {
+          this.updateVote(id, vote);
+        }}
       />
     );
   }

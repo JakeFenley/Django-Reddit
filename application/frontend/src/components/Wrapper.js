@@ -5,7 +5,8 @@ import Header from "./layouts/Header";
 import Login from "./accounts/Login";
 import Register from "./accounts/Register";
 import Subreddit from "./Subreddit";
-import CreatePost from "./CreatePost";
+import CreatePost from "./posts/pages/CreatePost";
+import Post from "./posts/pages/Post";
 
 export default function Wrapper() {
   return (
@@ -16,6 +17,7 @@ export default function Wrapper() {
         <Route exact path="/register" component={Register} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/createpost" component={CreatePost} />
+        <Route path="/r/:subreddit/:post" component={Post} />
         <Route path="/r/:subreddit" component={Subreddit} />
       </Switch>
     </div>

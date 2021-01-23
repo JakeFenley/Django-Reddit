@@ -1,10 +1,9 @@
-from things.serializers import ProfileSerializer
-from things.models import Profile
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from validate_email import validate_email
+from things.models import Profile
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -67,6 +67,11 @@ p {
   font-size: 1.8rem;
 }
 
+textarea {
+  width: 100%;
+  min-height: 200px;
+}
+
 nav {
   justify-content: space-between;
   display: flex;
@@ -139,7 +144,9 @@ form {
   }
 
   button {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     padding: 2.5rem;
     background-color: transparent;
