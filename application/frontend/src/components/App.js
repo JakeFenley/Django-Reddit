@@ -45,6 +45,7 @@ export default function App() {
           subreddits: subreddits,
           isLoading: false,
         };
+
         setViewState(newState);
       } catch (err) {
         console.log(err);
@@ -72,7 +73,11 @@ export default function App() {
       >
         <AlertProvider template={AlertTemplate} {...options}>
           <Alerts />
-          {userState.isLoading ? <Loading /> : <Wrapper />}
+          {userState.isLoading || viewState.isLoading ? (
+            <Loading />
+          ) : (
+            <Wrapper />
+          )}
         </AlertProvider>
       </GlobalContext.Provider>
     </Router>

@@ -72,7 +72,7 @@ textarea {
   min-height: 200px;
 }
 
-nav.main {
+.navigation {
   justify-content: space-between;
   display: flex;
   align-items: center;
@@ -90,7 +90,7 @@ nav.main {
     transition: color 0.5s ease;
   }
 
-  ul {
+  .right-col {
     list-style-type: none;
     display: flex;
     justify-content: flex-end;
@@ -113,28 +113,39 @@ nav.main {
   }
 }
 
-nav.reddits {
+.menu {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 2.5rem;
+  list-style-type: none;
+  display: block;
+  left: 2.5rem;
   opacity: 0;
   visibility: hidden;
   background-color: $White;
-  width: fit-content;
-  height: 30vw;
+  min-width: fit-content;
+  overflow-y: hidden;
+  overflow-x: scroll;
   max-height: 1000px;
   transition: opacity 0.5s ease;
+  z-index: 500;
+  border: 2px solid $Black50;
+  border-bottom: 0;
 
   &.open {
     opacity: 1;
     visibility: visible;
   }
 
+  li {
+    border-bottom: 2px solid $Black50;
+    padding: 2.5rem 5rem 2.5rem 2.5rem;
+  }
+
   a {
-    @include SemiBold();
+    @include Reg();
     display: block;
     text-decoration: none;
-    font-size: 1.5rem;
+    font-size: 2rem;
     color: $Black;
     transition: color 0.5s ease;
     width: fit-content;
