@@ -35,7 +35,7 @@ export default class Subreddit extends Component {
 
         if (post.id === id) {
           post.score = vote.updated_value;
-          post.votes = [vote];
+          post.vote = vote;
           break;
         }
       }

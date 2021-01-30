@@ -67,7 +67,6 @@ export default class Post extends Component {
 
   addComment = (parentId, parentType, newComment) => {
     let comments;
-
     if (parentType === "post") {
       comments = [newComment, ...this.state.comments];
     } else {
@@ -102,7 +101,7 @@ export default class Post extends Component {
           op: post.author_profile.username,
           score: post.score,
         },
-        vote: post.votes[0],
+        vote: post.vote,
         comments: post.comments_field,
       });
       setViewState({ ...viewState, subreddit: post.subreddit.name });

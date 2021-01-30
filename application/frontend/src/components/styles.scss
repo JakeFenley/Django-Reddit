@@ -123,8 +123,8 @@ textarea {
   visibility: hidden;
   background-color: $White;
   min-width: fit-content;
-  overflow-y: hidden;
-  overflow-x: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
   max-height: 1000px;
   transition: opacity 0.5s ease;
   z-index: 500;

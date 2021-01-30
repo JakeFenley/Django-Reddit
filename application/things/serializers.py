@@ -12,43 +12,85 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# Votes
+# Comments and Posts Inheritance Model
 
 
-class VoteSerializer(serializers.ModelSerializer):
-    updated_value = serializers.IntegerField(required=False, read_only=True)
+class PostSerializerMaster(serializers.ModelSerializer):
+    vote = serializers.SerializerMethodField()
 
-    class Meta:
+    def get_vote(self, obj):
+        try:
+            vote = Vote.objects.get(
+                user=self.context['request'].user, posts=obj.id)
+            return VoteSerializer(vote).data
+        except:
+            return None
 
-        model = Vote
-        fields = ('value', 'updated_value', 'submission_type')
+
+# Comments Serializers
+
+class CommentSerializerMaster(serializers.ModelSerializer):
+    vote = serializers.SerializerMethodField()
+
+    def get_vote(self, obj):
+        try:
+            vote = Vote.objects.get(
+                user=self.context['request'].user, comments=obj.id)
+            return VoteSerializer(vote).data
+        except:
+            return None
 
 
-# Comments
-
-
-class GetCommentsSerializer(serializers.ModelSerializer):
-    votes = VoteSerializer(read_only=True, many=True)
+class GetCommentsSerializer(CommentSerializerMaster):
     comments_field = RecursiveField(allow_null=True, many=True)
 
     class Meta:
         model = Comment
         fields = ('id', 'author_profile',  'text', 'created_at',
-                  'score', 'votes', 'comments_field')
+                  'score', 'vote', 'comments_field')
         depth = 1
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    votes = VoteSerializer(read_only=True, many=True)
-    comments_field = RecursiveField(allow_null=True, many=True, read_only=True)
+class CommentSerializer(CommentSerializerMaster):
+    comments_field = RecursiveField(allow_null=True, read_only=True)
     author_profile = ProfileSerializer(read_only=True)
     score = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Comment
         fields = ('id', 'author_profile',  'text', 'created_at',
-                  'score', 'votes', 'comments_field')
+                  'score', 'vote', 'comments_field')
         depth = 1
+
+
+# Post Serializers
+
+
+class GetPostSerializer(PostSerializerMaster):
+    comments_field = GetCommentsSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Post
+        fields = ('id', 'author_profile', 'title', 'text', 'created_at',
+                  'score', 'subreddit', 'vote', 'comments_field')
+        depth = 1
+
+
+class GetPostSerializer_TopLevel(PostSerializerMaster):
+
+    class Meta:
+        model = Post
+        fields = ('id', 'author_profile', 'title', 'text', 'created_at',
+                  'score', 'subreddit', 'vote')
+        depth = 1
+
+
+class PostSerializer_limited(serializers.ModelSerializer):
+
+    class Meta:
+        model = Post
+        fields = ('id', 'text', 'title', 'subreddit', 'subreddit_name')
+
 
 # Subreddits
 
@@ -59,32 +101,14 @@ class SubredditSerializer(serializers.ModelSerializer):
         model = Subreddit
         fields = ['name', 'id']
 
-# Posts
+
+# Votes
 
 
-class GetPostSerializer(serializers.ModelSerializer):
-    comments_field = GetCommentsSerializer(read_only=True, many=True)
-    votes = VoteSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Post
-        fields = ('id', 'author_profile', 'title', 'text', 'created_at',
-                  'score', 'subreddit', 'votes', 'comments_field')
-        depth = 1
-
-
-class GetPostSerializer_TopLevel(serializers.ModelSerializer):
-    votes = VoteSerializer(read_only=True, many=True)
+class VoteSerializer(serializers.ModelSerializer):
+    updated_value = serializers.IntegerField(required=False, read_only=True)
 
     class Meta:
-        model = Post
-        fields = ('id', 'author_profile', 'title', 'text', 'created_at',
-                  'score', 'subreddit', 'votes')
-        depth = 1
 
-
-class PostSerializer_limited(serializers.ModelSerializer):
-
-    class Meta:
-        model = Post
-        fields = ('id', 'text', 'title', 'subreddit', 'subreddit_name')
+        model = Vote
+        fields = ('value', 'updated_value', 'submission_type')

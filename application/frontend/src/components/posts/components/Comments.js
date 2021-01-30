@@ -10,7 +10,7 @@ import VoteScoreWrapper from "./VoteScoreWrapper";
 export default class Comments extends Component {
   static contextType = GlobalContext;
   static propTypes = {
-    comments: PropTypes.array.isRequired,
+    comments: PropTypes.any,
     createUpdateCommentVote: PropTypes.func.isRequired,
     addComment: PropTypes.func.isRequired,
   };
@@ -30,37 +30,39 @@ export default class Comments extends Component {
     const { comments } = this.props;
     return (
       <div className="comments">
-        {comments.map((x) => (
-          <Fragment key={x.id}>
-            <div className="comment">
-              <VoteScoreWrapper
-                submission={x}
-                vote={x.votes[0]}
-                submitVote={this.submitVote}
-              />
-              <h3>{x.title}</h3>
-              <p>
-                <Interweave
-                  content={x.text}
-                  matchers={[new UrlMatcher("url")]}
-                />
-              </p>
-              <p>{x.author_profile.username}</p>
-              <CommentForm
-                submissionId={x.id}
-                submissionType="comment"
-                addComment={this.props.addComment}
-              />
-            </div>
-            <div className="test">
-              <Comments
-                comments={x.comments_field}
-                createUpdateCommentVote={this.props.createUpdateCommentVote}
-                addComment={this.props.addComment}
-              />
-            </div>
-          </Fragment>
-        ))}
+        {Array.isArray(comments)
+          ? comments.map((x) => (
+              <Fragment key={x.id}>
+                <div className="comment">
+                  <VoteScoreWrapper
+                    submission={x}
+                    vote={x.vote}
+                    submitVote={this.submitVote}
+                  />
+                  <h3>{x.title}</h3>
+                  <p>
+                    <Interweave
+                      content={x.text}
+                      matchers={[new UrlMatcher("url")]}
+                    />
+                  </p>
+                  <p>{x.author_profile.username}</p>
+                  <CommentForm
+                    submissionId={x.id}
+                    submissionType="comment"
+                    addComment={this.props.addComment}
+                  />
+                </div>
+                <div className="test">
+                  <Comments
+                    comments={x.comments_field}
+                    createUpdateCommentVote={this.props.createUpdateCommentVote}
+                    addComment={this.props.addComment}
+                  />
+                </div>
+              </Fragment>
+            ))
+          : null}
       </div>
     );
   }

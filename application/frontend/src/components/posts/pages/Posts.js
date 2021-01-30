@@ -18,6 +18,7 @@ export default class Posts extends Component {
 
     try {
       const vote = await putVote(userState.token, value, postId, "post");
+
       this.props.updateVote(postId, vote);
     } catch (err) {
       console.log(err);
@@ -35,7 +36,7 @@ export default class Posts extends Component {
           <div key={x.id} className="post">
             <VoteScoreWrapper
               submission={x}
-              vote={x.votes[0]}
+              vote={x.vote}
               submitVote={this.submitVote}
             />
             <h3>{x.title}</h3>

@@ -11,9 +11,9 @@ router.register('comment',
                 CreateUpdateDestroyComment, 'create_update_comment')
 router.register('vote', VoteView, 'vote')
 router.register('getSubredditPosts', SubredditPosts, 'subreddit_posts')
-router.register('getPost', GetPost, 'get_post')
 router.register('subreddit', SubredditView, 'subreddit')
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('getPost/<int:pk>', GetPost.as_view()),
 ]

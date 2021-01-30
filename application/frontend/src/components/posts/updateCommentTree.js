@@ -4,7 +4,7 @@ const modifyComment = (action, comment, objects) => {
       const { vote } = objects;
 
       comment.score = vote.updated_value;
-      comment.votes[0] = {
+      comment.vote = {
         value: vote.value,
         submission_type: "comment",
       };

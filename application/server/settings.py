@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'frontend',
     'validate_email',
     'django_heroku',
-    'rest_framework_recursive'
+    'rest_framework_recursive',
+    'mptt'
 
 ]
 

@@ -1,5 +1,6 @@
 from .models import Post, Comment, Profile
 from rest_framework import viewsets, permissions, generics
+from rest_framework.generics import RetrieveAPIView
 from .serializers import *
 from rest_framework import status
 from rest_framework.response import Response
@@ -13,57 +14,12 @@ class ListHomePosts(viewsets.ModelViewSet):
     http_method_names = ['get']
 
     def get_queryset(self):
-        try:
-            if self.request.user.is_authenticated is True:
-                post = Post.objects.all().prefetch_related(
-                    Prefetch('votes', queryset=Vote.objects.filter(
-                        user=self.request.user))
-                )
-            else:
-                post = Post.objects.all().prefetch_related(
-                    Prefetch('votes', queryset=Vote.objects.none())
-                )
-
-            return post.order_by('-score')
-
-        except:
-            pass
-            raise Http404
+        return Post.objects.all().order_by('-score')
 
 
-class GetPost(viewsets.ReadOnlyModelViewSet):
+class GetPost(RetrieveAPIView):
     serializer_class = GetPostSerializer
-
-    def get_queryset(self):
-        post_id = self.request.GET.get('post_id', None)
-        try:
-            if self.request.user.is_authenticated is True:
-                post = Post.objects.filter(id=post_id).prefetch_related(
-                    Prefetch('votes', queryset=Vote.objects.filter(
-                        user=self.request.user))
-                )
-            else:
-                post = Post.objects.filter(id=post_id).prefetch_related(
-                    Prefetch('votes', queryset=Vote.objects.none())
-                )
-
-            return post
-
-        except:
-            pass
-            raise Http404
-
-
-class ListComments(viewsets.ModelViewSet):
-    serializer_class = GetCommentsSerializer
-    http_method_names = ['get']
-
-    def get_queryset(self):
-        queryset = Comment.objects.all()
-        parent_post = self.request.GET.get('parent_post', None)
-        if parent_post is not None:
-            queryset = queryset.filter(parent_post=parent_post)
-        return queryset
+    queryset = Post.objects.all()
 
 
 class SubredditPosts(viewsets.ModelViewSet):
@@ -80,21 +36,6 @@ class SubredditPosts(viewsets.ModelViewSet):
                 return posts
         except:
             raise Http404
-
-
-class SubredditView(viewsets.ModelViewSet):
-    http_method_names = ['post', 'get']
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly
-    ]
-
-    serializer_class = SubredditSerializer
-    queryset = Subreddit.objects.all()
-
-    def perform_create(self, serializer):
-        serializer.is_valid(raise_exception=True)
-        subreddit = serializer.save(owner=self.request.user)
-        return Response(subreddit)
 
 
 class CreateUpdateDestroyPost(viewsets.ModelViewSet):
@@ -136,6 +77,33 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
             return Response(status=403, data={"error": "403 Forbidden"})
 
 
+class ListComments(viewsets.ModelViewSet):
+    serializer_class = GetCommentsSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        queryset = Comment.objects.all()
+        parent_post = self.request.GET.get('parent_post', None)
+        if parent_post is not None:
+            queryset = queryset.filter(parent_post=parent_post)
+        return queryset
+
+
+class SubredditView(viewsets.ModelViewSet):
+    http_method_names = ['post', 'get']
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+    ]
+
+    serializer_class = SubredditSerializer
+    queryset = Subreddit.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        subreddit = serializer.save(owner=self.request.user)
+        return Response(subreddit)
+
+
 class CreateUpdateDestroyComment(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly
@@ -143,28 +111,33 @@ class CreateUpdateDestroyComment(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
-    def get_submission(self, request):
-        post_id = request.GET.get('post_id', None)
-        comment_id = request.GET.get('comment_id', None)
-        if post_id is not None:
-            submission = Post.objects.get(
-                id=post_id)
-        elif comment_id is not None:
-            submission = Comment.objects.get(
-                id=comment_id)
-        else:
-            return None
-        return submission
-
     def perform_create(self, serializer, *args, **kwargs):
         serializer.is_valid(raise_exception=True)
         profile = Profile.objects.get(user_id=self.request.user.id)
-        submission = self.get_submission(self.request)
-        comment = serializer.save(
-            owner=self.request.user,  author_profile=profile)
-        submission.comments_field.add(comment)
-        submission.save()
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        post_id = self.request.GET.get('post_id', None)
+        comment_id = self.request.GET.get('comment_id', None)
+
+        try:
+
+            if post_id is not None:
+                parent = Post.objects.get(
+                    id=post_id)
+                comment = serializer.save(
+                    owner=self.request.user,  author_profile=profile)
+                parent.comments_field.add(comment)
+                parent.save()
+
+            elif comment_id is not None:
+                parent = Comment.objects.get(
+                    id=comment_id)
+                comment = serializer.save(
+                    owner=self.request.user,  author_profile=profile, parent=parent)
+
+            return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+        except:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         obj = self.get_object()
