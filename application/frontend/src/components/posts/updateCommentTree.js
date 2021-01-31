@@ -14,7 +14,10 @@ const modifyComment = (action, comment, objects) => {
 
     case "addComment": {
       const { newComment } = objects;
-      comment.comments_field = [newComment, ...comment.comments_field];
+      const comments_field = Array.isArray(comment.comments_field)
+        ? comment.comments_field
+        : [];
+      comment.comments_field = [newComment, ...comments_field];
       return comment;
     }
   }

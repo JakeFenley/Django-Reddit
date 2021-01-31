@@ -42,7 +42,7 @@ export default class Comments extends Component {
                   <h3>{x.title}</h3>
                   <p>
                     <Interweave
-                      content={x.text}
+                      content={x.text_sanitized}
                       matchers={[new UrlMatcher("url")]}
                     />
                   </p>

@@ -27,7 +27,7 @@ export default class Post extends Component {
     post: {
       id: null,
       title: null,
-      text: null,
+      text_sanitized: null,
       op: null,
       score: null,
     },
@@ -97,7 +97,7 @@ export default class Post extends Component {
         post: {
           id: post.id,
           title: post.title,
-          text: post.text,
+          text_sanitized: post.text_sanitized,
           op: post.author_profile.username,
           score: post.score,
         },
@@ -125,7 +125,7 @@ export default class Post extends Component {
           <h3>{post.title}</h3>
           <p>
             <Interweave
-              content={post.text}
+              content={post.text_sanitized}
               matchers={[new UrlMatcher("url")]}
             />
           </p>

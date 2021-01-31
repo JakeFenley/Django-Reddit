@@ -40,7 +40,7 @@ export default class Posts extends Component {
               submitVote={this.submitVote}
             />
             <h3>{x.title}</h3>
-            <p>{x.text}</p>
+            <p>{x.text_sanitized}</p>
             <Link to={this.getPostLink(x)}>See Post</Link>
           </div>
         ))}

@@ -17,6 +17,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class PostSerializerMaster(serializers.ModelSerializer):
     vote = serializers.SerializerMethodField()
+    text_sanitized = serializers.CharField(read_only=True)
 
     def get_vote(self, obj):
         try:
@@ -46,7 +47,7 @@ class GetCommentsSerializer(CommentSerializerMaster):
 
     class Meta:
         model = Comment
-        fields = ('id', 'author_profile',  'text', 'created_at',
+        fields = ('id', 'author_profile',  'text_sanitized', 'created_at',
                   'score', 'vote', 'comments_field')
         depth = 1
 
@@ -58,7 +59,7 @@ class CommentSerializer(CommentSerializerMaster):
 
     class Meta:
         model = Comment
-        fields = ('id', 'author_profile',  'text', 'created_at',
+        fields = ('id', 'author_profile',  'text', 'text_sanitized', 'created_at',
                   'score', 'vote', 'comments_field')
         depth = 1
 
@@ -71,7 +72,7 @@ class GetPostSerializer(PostSerializerMaster):
 
     class Meta:
         model = Post
-        fields = ('id', 'author_profile', 'title', 'text', 'created_at',
+        fields = ('id', 'author_profile', 'title', 'text_sanitized', 'created_at',
                   'score', 'subreddit', 'vote', 'comments_field')
         depth = 1
 
@@ -80,7 +81,7 @@ class GetPostSerializer_TopLevel(PostSerializerMaster):
 
     class Meta:
         model = Post
-        fields = ('id', 'author_profile', 'title', 'text', 'created_at',
+        fields = ('id', 'author_profile', 'title', 'text_sanitized', 'created_at',
                   'score', 'subreddit', 'vote')
         depth = 1
 

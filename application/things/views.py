@@ -7,14 +7,13 @@ from rest_framework.response import Response
 from django.http import Http404
 from itertools import chain
 from django.db.models import Prefetch
+from django.utils.html import escape
 
 
 class ListHomePosts(viewsets.ModelViewSet):
     serializer_class = GetPostSerializer_TopLevel
     http_method_names = ['get']
-
-    def get_queryset(self):
-        return Post.objects.all().order_by('-score')
+    queryset = Post.objects.all().order_by('-score')
 
 
 class GetPost(RetrieveAPIView):
@@ -30,10 +29,10 @@ class SubredditPosts(viewsets.ModelViewSet):
         name = self.request.GET.get('subreddit', None)
 
         try:
-            if name is not None:
-                subreddit = Subreddit.objects.get(name__icontains=name)
-                posts = Post.objects.filter(subreddit_id=subreddit.id)
-                return posts
+            subreddit = Subreddit.objects.get(name__icontains=name)
+            posts = Post.objects.filter(
+                subreddit_id=subreddit.id).order_by('-score')
+            return posts
         except:
             raise Http404
 
@@ -50,9 +49,10 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
         profile = Profile.objects.get(user_id=self.request.user.id)
+        text_sanitized = escape(serializer.validated_data['text'])
         if Subreddit.objects.filter(name=serializer.validated_data['subreddit_name']).exists():
             post = serializer.save(
-                owner=self.request.user, author_profile=profile)
+                owner=self.request.user, author_profile=profile, text_sanitized=text_sanitized)
             return Response(post)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -62,8 +62,9 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
         if(obj.owner == request.user):
             serializer = PostSerializer_limited(
                 instance=obj, data=request.data, partial=True)
+            text_sanitized = escape(serializer.validated_data['text'])
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(text_sanitized=text_sanitized)
             return Response(serializer.data)
         else:
             return Response(status=403, data={"error": "403 Forbidden"})
@@ -75,18 +76,6 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
             return Response(status=204, data={"message": "Post deleted"})
         else:
             return Response(status=403, data={"error": "403 Forbidden"})
-
-
-class ListComments(viewsets.ModelViewSet):
-    serializer_class = GetCommentsSerializer
-    http_method_names = ['get']
-
-    def get_queryset(self):
-        queryset = Comment.objects.all()
-        parent_post = self.request.GET.get('parent_post', None)
-        if parent_post is not None:
-            queryset = queryset.filter(parent_post=parent_post)
-        return queryset
 
 
 class SubredditView(viewsets.ModelViewSet):
@@ -116,22 +105,30 @@ class CreateUpdateDestroyComment(viewsets.ModelViewSet):
         profile = Profile.objects.get(user_id=self.request.user.id)
         post_id = self.request.GET.get('post_id', None)
         comment_id = self.request.GET.get('comment_id', None)
-
+        text_sanitized = escape(serializer.validated_data['text'])
         try:
 
             if post_id is not None:
                 parent = Post.objects.get(
                     id=post_id)
+
                 comment = serializer.save(
-                    owner=self.request.user,  author_profile=profile)
+                    owner=self.request.user,
+                    author_profile=profile,
+                    text_sanitized=text_sanitized)
+
                 parent.comments_field.add(comment)
                 parent.save()
 
             elif comment_id is not None:
                 parent = Comment.objects.get(
                     id=comment_id)
+
                 comment = serializer.save(
-                    owner=self.request.user,  author_profile=profile, parent=parent)
+                    owner=self.request.user,
+                    author_profile=profile,
+                    parent=parent,
+                    text_sanitized=text_sanitized)
 
             return Response(status=status.HTTP_200_OK, data=serializer.data)
 
@@ -145,7 +142,8 @@ class CreateUpdateDestroyComment(viewsets.ModelViewSet):
             serializer = CommentSerializer(
                 instance=obj, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            text_sanitized = escape(serializer.validated_data['text'])
+            serializer.save(text_sanitized=text_sanitized)
             return Response(serializer.data)
         else:
             return Response(status=403, data={"error": "403 Forbidden"})

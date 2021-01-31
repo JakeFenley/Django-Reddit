@@ -21,6 +21,7 @@ psycopg2-binary = "*"
 cryptography = "*"
 bleach = "*"
 django-mptt = "*"
+html-sanitizer = "*"
 
 [requires]
 python_version = "3.9"

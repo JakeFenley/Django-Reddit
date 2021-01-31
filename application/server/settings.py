@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'validate_email',
     'django_heroku',
     'rest_framework_recursive',
-    'mptt'
+    'mptt',
+    'html_sanitizer'
 
 ]
 

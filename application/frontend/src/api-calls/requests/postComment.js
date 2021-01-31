@@ -17,6 +17,7 @@ export const postComment = async (token, id, type, text) => {
       body,
       headerConfig(token)
     );
+    console.log(response.data);
     return response.data;
   } catch (err) {
     return err.errors;
