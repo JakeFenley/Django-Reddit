@@ -1,17 +1,18 @@
-$BoxShadow: rgb(73, 73, 73);
+$Grey: rgb(97, 97, 97);
+$LightGrey: rgba(240, 240, 243, 0.493);
 
 .posts,
 .post-view {
   margin: 0 auto;
-  max-width: 600px;
+  max-width: 1000px;
 }
 
 .post {
-  margin: 5rem 0;
+  margin: 2.5rem 0;
   padding: 2.5rem;
-  border: 1px solid black;
-  border-radius: 15px;
-  box-shadow: 6px 6px 8px -5px $BoxShadow;
+  border: 1px solid $Grey;
+  border-radius: 8px;
+  box-shadow: 4px 3px 3px -3px $Grey;
 }
 
 .score {
@@ -21,13 +22,54 @@ $BoxShadow: rgb(73, 73, 73);
 .comment {
   margin: 2.5rem 0;
   padding: 2.5rem;
-  border: 1px solid black;
-  border-radius: 15px;
-  box-shadow: 6px 6px 8px -5px $BoxShadow;
+  border: 1px solid $Grey;
+  border-radius: 8px;
+  box-shadow: 4px 3px 3px -3px $Grey;
 }
 
 .comments {
   margin-left: 2.5rem;
+}
+
+.top-row {
+  a,
+  span {
+    margin-right: 0.3rem;
+  }
+
+  a {
+    color: black;
+    text-decoration: none;
+    &:visited {
+      color: black;
+    }
+    &:hover {
+      color: black;
+      text-decoration: underline;
+    }
+    &:active {
+      color: black;
+    }
+  }
+}
+
+.subreddit {
+  font-weight: 700;
+}
+
+.contents {
+  padding-left: 5rem;
+}
+
+.vote-score-wrapper {
+  position: absolute;
+  top: 2.5rem;
+  left: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
 }
 
 button {

@@ -43,14 +43,6 @@ export default function Register() {
 
   return (
     <form onSubmit={authRegister}>
-      <label htmlFor="username">Username</label>
-      <input
-        type="text"
-        id="username"
-        name="username"
-        placeholder="Username*"
-        autoComplete="off"
-      ></input>
       <label htmlFor="email">Email</label>
       <input
         type="email"
@@ -58,6 +50,14 @@ export default function Register() {
         name="email"
         placeholder="Email*"
         autoComplete="email"
+      ></input>
+      <label htmlFor="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="Username*"
+        autoComplete="off"
       ></input>
       <label htmlFor="password">Password</label>
       <input

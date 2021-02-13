@@ -12,25 +12,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# Comments and Posts Inheritance Model
-
-
-class PostSerializerMaster(serializers.ModelSerializer):
-    vote = serializers.SerializerMethodField()
-    text_sanitized = serializers.CharField(read_only=True)
-
-    def get_vote(self, obj):
-        try:
-            vote = Vote.objects.get(
-                user=self.context['request'].user, posts=obj.id)
-            return VoteSerializer(vote).data
-        except:
-            return None
-
-
 # Comments Serializers
 
-class CommentSerializerMaster(serializers.ModelSerializer):
+
+class CommentSerializerAbstract(serializers.ModelSerializer):
     vote = serializers.SerializerMethodField()
 
     def get_vote(self, obj):
@@ -42,7 +27,7 @@ class CommentSerializerMaster(serializers.ModelSerializer):
             return None
 
 
-class GetCommentsSerializer(CommentSerializerMaster):
+class GetCommentsSerializer(CommentSerializerAbstract):
     comments_field = RecursiveField(allow_null=True, many=True)
 
     class Meta:
@@ -52,7 +37,7 @@ class GetCommentsSerializer(CommentSerializerMaster):
         depth = 1
 
 
-class CommentSerializer(CommentSerializerMaster):
+class CommentSerializer(CommentSerializerAbstract):
     comments_field = RecursiveField(allow_null=True, read_only=True)
     author_profile = ProfileSerializer(read_only=True)
     score = serializers.IntegerField(read_only=True)
@@ -66,22 +51,34 @@ class CommentSerializer(CommentSerializerMaster):
 
 # Post Serializers
 
+class PostSerializerAbstract(serializers.ModelSerializer):
+    vote = serializers.SerializerMethodField()
+    text_sanitized = serializers.CharField(read_only=True)
 
-class GetPostSerializer(PostSerializerMaster):
+    def get_vote(self, obj):
+        try:
+            vote = Vote.objects.get(
+                user=self.context['request'].user, posts=obj.id)
+            return VoteSerializer(vote).data
+        except:
+            return None
+
+
+class GetPostSerializer(PostSerializerAbstract):
     comments_field = GetCommentsSerializer(read_only=True, many=True)
 
     class Meta:
         model = Post
-        fields = ('id', 'author_profile', 'title', 'text_sanitized', 'created_at',
+        fields = ('id', 'author_profile', 'title_sanitized', 'text_sanitized', 'created_at',
                   'score', 'subreddit', 'vote', 'comments_field')
         depth = 1
 
 
-class GetPostSerializer_TopLevel(PostSerializerMaster):
+class GetPostSerializer_TopLevel(PostSerializerAbstract):
 
     class Meta:
         model = Post
-        fields = ('id', 'author_profile', 'title', 'text_sanitized', 'created_at',
+        fields = ('id', 'author_profile', 'title_sanitized', 'text_sanitized', 'created_at',
                   'score', 'subreddit', 'vote')
         depth = 1
 

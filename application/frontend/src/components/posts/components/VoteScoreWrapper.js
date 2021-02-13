@@ -12,7 +12,7 @@ export default class VoteScoreWrapper extends Component {
   render() {
     const { submission, vote, submitVote } = this.props;
     return (
-      <div>
+      <div className="vote-score-wrapper">
         <VoteButton
           submissionId={submission.id}
           direction={"upvote"}

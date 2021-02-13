@@ -96,7 +96,7 @@ export default class Post extends Component {
       this.setState({
         post: {
           id: post.id,
-          title: post.title,
+          title: post.title_sanitized,
           text_sanitized: post.text_sanitized,
           op: post.author_profile.username,
           score: post.score,

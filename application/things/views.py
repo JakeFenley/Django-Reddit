@@ -49,16 +49,24 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
         profile = Profile.objects.get(user_id=self.request.user.id)
+        title_sanitized = escape(serializer.validated_data['title'])
         text_sanitized = escape(serializer.validated_data['text'])
+
         if Subreddit.objects.filter(name=serializer.validated_data['subreddit_name']).exists():
             post = serializer.save(
-                owner=self.request.user, author_profile=profile, text_sanitized=text_sanitized)
+                owner=self.request.user,
+                author_profile=profile,
+                text_sanitized=text_sanitized,
+                title_sanitized=title_sanitized
+            )
             return Response(post)
+
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         obj = self.get_object()
+
         if(obj.owner == request.user):
             serializer = PostSerializer_limited(
                 instance=obj, data=request.data, partial=True)
@@ -66,14 +74,17 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(text_sanitized=text_sanitized)
             return Response(serializer.data)
+
         else:
             return Response(status=403, data={"error": "403 Forbidden"})
 
     def destroy(self, request, *args, **kwargs):
         obj = self.get_object()
+
         if(obj.owner == request.user):
             self.perform_destroy(obj)
             return Response(status=204, data={"message": "Post deleted"})
+
         else:
             return Response(status=403, data={"error": "403 Forbidden"})
 
@@ -138,6 +149,7 @@ class CreateUpdateDestroyComment(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         obj = self.get_object()
+
         if(obj.owner == request.user):
             serializer = CommentSerializer(
                 instance=obj, data=request.data, partial=True)
@@ -145,6 +157,7 @@ class CreateUpdateDestroyComment(viewsets.ModelViewSet):
             text_sanitized = escape(serializer.validated_data['text'])
             serializer.save(text_sanitized=text_sanitized)
             return Response(serializer.data)
+
         else:
             return Response(status=403, data={"error": "403 Forbidden"})
 
@@ -153,6 +166,7 @@ class CreateUpdateDestroyComment(viewsets.ModelViewSet):
         if(obj.owner == request.user):
             self.perform_destroy(obj)
             return Response(status=status.HTTP_204_NO_CONTENT, data={"message": "Post deleted"})
+
         else:
             return Response(status=status.HTTP_403_FORBIDDEN, data={"error": "403 Forbidden"})
 
@@ -168,6 +182,7 @@ class VoteView(viewsets.ModelViewSet):
     def _update_vote(self, vote, value, submission, profile):
         if vote.value == value:
             change = 0
+
         else:
             change = vote.value * -1 + value
 

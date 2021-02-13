@@ -29,6 +29,7 @@ class Post(Model):
     author_profile = ForeignKey(
         Profile, related_name="posts", to_field="user", on_delete=CASCADE, null=True)
     title = CharField(max_length=250, blank=True)
+    title_sanitized = TextField(blank=True)
     text = CharField(max_length=4000, blank=True)
     text_sanitized = TextField(blank=True)
     created_at = DateTimeField(auto_now_add=True)

@@ -5,6 +5,9 @@ import { putVote } from "../../../api-calls/requests/putVote";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../../../context/GlobalContext";
 import VoteScoreWrapper from "../components/VoteScoreWrapper";
+import TimeAgo from "react-timeago";
+import Interweave from "interweave";
+import { UrlMatcher } from "interweave-autolink";
 
 export default class Posts extends Component {
   static contextType = GlobalContext;
@@ -29,6 +32,10 @@ export default class Posts extends Component {
     return `/r/${x.subreddit.name}/${x.id}`;
   };
 
+  getSubredditLink = (x) => {
+    return `/r/${x.subreddit.name}/`;
+  };
+
   render() {
     return (
       <section className="posts">
@@ -39,9 +46,36 @@ export default class Posts extends Component {
               vote={x.vote}
               submitVote={this.submitVote}
             />
-            <h3>{x.title}</h3>
-            <p>{x.text_sanitized}</p>
-            <Link to={this.getPostLink(x)}>See Post</Link>
+            <div className="contents">
+              <div className="top-row">
+                <Link to={this.getSubredditLink(x)} className="subreddit">
+                  r/{x.subreddit.name}
+                </Link>
+                <span className="dot">•</span>
+                <span className="name">
+                  Posted by u/{x.author_profile.username}
+                </span>
+                <span className="dot">•</span>
+                <span className="light">{x.author_profile.karma} Karma</span>
+                <span className="dot">•</span>
+                <span className="time-ago">
+                  <TimeAgo date={x.created_at} />
+                </span>
+              </div>
+              <h3>
+                <Interweave
+                  content={x.title_sanitized}
+                  matchers={[new UrlMatcher("url")]}
+                />
+              </h3>
+              <p>
+                <Interweave
+                  content={x.text_sanitized}
+                  matchers={[new UrlMatcher("url")]}
+                />
+              </p>
+              <Link to={this.getPostLink(x)}>Comments</Link>
+            </div>
           </div>
         ))}
       </section>
