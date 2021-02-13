@@ -1,12 +1,8 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
-import CommentForm from "./CommentForm";
 import { GlobalContext } from "../../../context/GlobalContext";
-import Interweave from "interweave";
-import { UrlMatcher } from "interweave-autolink";
 import { putVote } from "../../../api-calls/requests/putVote";
-import VoteScoreWrapper from "./VoteScoreWrapper";
-
+import Comment from "./Comment";
 export default class Comments extends Component {
   static contextType = GlobalContext;
   static propTypes = {
@@ -31,36 +27,14 @@ export default class Comments extends Component {
     return (
       <div className="comments">
         {Array.isArray(comments)
-          ? comments.map((x) => (
-              <Fragment key={x.id}>
-                <div className="comment">
-                  <VoteScoreWrapper
-                    submission={x}
-                    vote={x.vote}
-                    submitVote={this.submitVote}
-                  />
-                  <h3>{x.title}</h3>
-                  <p>
-                    <Interweave
-                      content={x.text_sanitized}
-                      matchers={[new UrlMatcher("url")]}
-                    />
-                  </p>
-                  <p>{x.author_profile.username}</p>
-                  <CommentForm
-                    submissionId={x.id}
-                    submissionType="comment"
-                    addComment={this.props.addComment}
-                  />
-                </div>
-                <div className="test">
-                  <Comments
-                    comments={x.comments_field}
-                    createUpdateCommentVote={this.props.createUpdateCommentVote}
-                    addComment={this.props.addComment}
-                  />
-                </div>
-              </Fragment>
+          ? comments.map((comment) => (
+              <Comment
+                key={comment.id}
+                comment={comment}
+                addComment={this.props.addComment}
+                createUpdateCommentVote={this.props.createUpdateCommentVote}
+                submitVote={this.submitVote}
+              />
             ))
           : null}
       </div>

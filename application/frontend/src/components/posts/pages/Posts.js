@@ -5,9 +5,10 @@ import { putVote } from "../../../api-calls/requests/putVote";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../../../context/GlobalContext";
 import VoteScoreWrapper from "../components/VoteScoreWrapper";
-import TimeAgo from "react-timeago";
+
 import Interweave from "interweave";
 import { UrlMatcher } from "interweave-autolink";
+import PostTopRow from "../components/PostTopRow";
 
 export default class Posts extends Component {
   static contextType = GlobalContext;
@@ -32,49 +33,32 @@ export default class Posts extends Component {
     return `/r/${x.subreddit.name}/${x.id}`;
   };
 
-  getSubredditLink = (x) => {
-    return `/r/${x.subreddit.name}/`;
-  };
-
   render() {
+    const { posts } = this.props;
     return (
       <section className="posts">
-        {this.props.posts.map((x) => (
-          <div key={x.id} className="post">
+        {posts.map((post) => (
+          <div key={post.id} className="post">
             <VoteScoreWrapper
-              submission={x}
-              vote={x.vote}
+              submission={post}
+              vote={post.vote}
               submitVote={this.submitVote}
             />
             <div className="contents">
-              <div className="top-row">
-                <Link to={this.getSubredditLink(x)} className="subreddit">
-                  r/{x.subreddit.name}
-                </Link>
-                <span className="dot">•</span>
-                <span className="name">
-                  Posted by u/{x.author_profile.username}
-                </span>
-                <span className="dot">•</span>
-                <span className="light">{x.author_profile.karma} Karma</span>
-                <span className="dot">•</span>
-                <span className="time-ago">
-                  <TimeAgo date={x.created_at} />
-                </span>
-              </div>
-              <h3>
+              <PostTopRow post={post} />
+              <p className="title">
                 <Interweave
-                  content={x.title_sanitized}
-                  matchers={[new UrlMatcher("url")]}
-                />
-              </h3>
-              <p>
-                <Interweave
-                  content={x.text_sanitized}
+                  content={post.title_sanitized}
                   matchers={[new UrlMatcher("url")]}
                 />
               </p>
-              <Link to={this.getPostLink(x)}>Comments</Link>
+              <p>
+                <Interweave
+                  content={post.text_sanitized}
+                  matchers={[new UrlMatcher("url")]}
+                />
+              </p>
+              <Link to={this.getPostLink(post)}>Comments</Link>
             </div>
           </div>
         ))}

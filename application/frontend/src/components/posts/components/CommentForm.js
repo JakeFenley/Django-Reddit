@@ -9,11 +9,12 @@ export default class CommentForm extends Component {
     submissionType: PropTypes.string.isRequired,
     submissionId: PropTypes.number,
     addComment: PropTypes.func.isRequired,
+    isOpen: PropTypes.bool,
+    toggleCommentForm: PropTypes.func.isRequired,
   };
 
   state = {
     submitFailure: false,
-    commentFormOpen: false,
   };
 
   handleSubmit = async (e) => {
@@ -30,7 +31,7 @@ export default class CommentForm extends Component {
         text
       );
       this.props.addComment(submissionId, submissionType, comment);
-      this.toggleCommentForm();
+      this.props.toggleCommentForm();
     } else {
       this.setState({ submitFailure: true });
     }
@@ -43,14 +44,6 @@ export default class CommentForm extends Component {
       return "Enter Comment";
     }
   }
-
-  toggleCommentForm = () => {
-    if (this.state.commentFormOpen) {
-      this.setState({ commentFormOpen: false });
-    } else if (this.context.userState.isAuthenticated) {
-      this.setState({ commentFormOpen: true });
-    }
-  };
 
   form = () => {
     return (
@@ -69,13 +62,6 @@ export default class CommentForm extends Component {
   };
 
   render() {
-    return (
-      <Fragment>
-        {this.context.userState.isAuthenticated ? (
-          <button onClick={this.toggleCommentForm}>Reply</button>
-        ) : null}
-        {this.state.commentFormOpen ? this.form() : null}
-      </Fragment>
-    );
+    return <Fragment>{this.props.isOpen ? this.form() : null}</Fragment>;
   }
 }

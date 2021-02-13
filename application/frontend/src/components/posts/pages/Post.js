@@ -1,6 +1,6 @@
 import { UrlMatcher } from "interweave-autolink";
 import Interweave from "interweave";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import Comments from "../components/Comments";
 import PropTypes from "prop-types";
 import { GlobalContext } from "../../../context/GlobalContext";
@@ -10,6 +10,7 @@ import CommentForm from "../components/CommentForm";
 import "./posts.scss";
 import updateCommentTree from "../updateCommentTree";
 import VoteScoreWrapper from "../components/VoteScoreWrapper";
+import PostTopRow from "../components/PostTopRow";
 
 export default class Post extends Component {
   static contextType = GlobalContext;
@@ -28,11 +29,15 @@ export default class Post extends Component {
       id: null,
       title: null,
       text_sanitized: null,
-      op: null,
       score: null,
+      author_profile: null,
+      subreddit: null,
+      created_at: null,
     },
     comments: [],
     vote: null,
+    isLoading: true,
+    commentFormOpen: false,
   };
 
   submitVote = async (postId, value) => {
@@ -98,9 +103,12 @@ export default class Post extends Component {
           id: post.id,
           title: post.title_sanitized,
           text_sanitized: post.text_sanitized,
-          op: post.author_profile.username,
+          author_profile: post.author_profile,
           score: post.score,
+          created_at: post.created_at,
+          subreddit: post.subreddit,
         },
+        isLoading: false,
         vote: post.vote,
         comments: post.comments_field,
       });
@@ -111,36 +119,64 @@ export default class Post extends Component {
     }
   };
 
+  toggleCommentForm = () => {
+    if (this.state.commentFormOpen) {
+      this.setState({ commentFormOpen: false });
+    } else if (this.context.userState.isAuthenticated) {
+      this.setState({ commentFormOpen: true });
+    }
+  };
+
   render() {
-    const { comments, vote, post } = this.state;
+    const { comments, vote, post, commentFormOpen } = this.state;
 
     return (
       <div className="post-view">
-        <div className="post">
-          <VoteScoreWrapper
-            submission={post}
-            vote={vote}
-            submitVote={this.submitVote}
-          />
-          <h3>{post.title}</h3>
-          <p>
-            <Interweave
-              content={post.text_sanitized}
-              matchers={[new UrlMatcher("url")]}
-            />
-          </p>
-          <p>{post.op}</p>
-          <CommentForm
-            submissionId={post.id}
-            submissionType="post"
-            addComment={this.addComment}
-          />
+        <div>
+          {this.state.isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <Fragment>
+              <div className="post">
+                <VoteScoreWrapper
+                  submission={post}
+                  vote={vote}
+                  submitVote={this.submitVote}
+                />
+                <div className="contents  ">
+                  <PostTopRow post={post} />
+                  <p className="title">
+                    <Interweave
+                      content={post.title_sanitized}
+                      matchers={[new UrlMatcher("url")]}
+                    />
+                  </p>
+                  <p>
+                    <Interweave
+                      content={post.text_sanitized}
+                      matchers={[new UrlMatcher("url")]}
+                    />
+                  </p>
+                  <div className="bottom-row">
+                    <button onClick={this.toggleCommentForm}>Reply</button>
+                  </div>
+                </div>
+              </div>
+              <CommentForm
+                submissionId={post.id}
+                submissionType="post"
+                addComment={this.addComment}
+                isOpen={commentFormOpen}
+                toggleCommentForm={this.toggleCommentForm}
+              />
+              <Comments
+                comments={comments}
+                createUpdateCommentVote={this.createUpdateCommentVote}
+                addComment={this.addComment}
+              />
+            </Fragment>
+          )}
         </div>
-        <Comments
-          comments={comments}
-          createUpdateCommentVote={this.createUpdateCommentVote}
-          addComment={this.addComment}
-        />
       </div>
     );
   }
