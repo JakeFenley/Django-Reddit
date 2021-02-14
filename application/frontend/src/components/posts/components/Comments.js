@@ -12,10 +12,8 @@ export default class Comments extends Component {
   };
 
   submitVote = async (commentId, value) => {
-    const { userState } = this.context;
-
     try {
-      const vote = await putVote(userState.token, value, commentId, "comment");
+      const vote = await putVote(value, commentId, "comment");
       this.props.createUpdateCommentVote(commentId, vote);
     } catch (err) {
       console.log(err);

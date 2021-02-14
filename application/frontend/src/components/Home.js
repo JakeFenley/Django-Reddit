@@ -11,10 +11,9 @@ export default class Home extends Component {
   };
 
   async consumePosts() {
-    const { viewState, setViewState, userState } = this.context;
+    const { viewState, setViewState } = this.context;
 
-    const token = userState.isAuthenticated ? userState.token : null;
-    const posts = await homePosts(token);
+    const posts = await homePosts();
 
     this.setState({
       posts: posts,

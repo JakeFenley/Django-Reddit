@@ -28,16 +28,20 @@ export default function App() {
   };
 
   useEffect(() => {
+    localStorage.csrf = document.querySelector(
+      '[name="csrfmiddlewaretoken"]'
+    ).value;
+
     const getUserState = async () => {
       if (localStorage.token && !userState.isAuthenticated) {
-        const user = await getUser(localStorage.token);
+        const user = await getUser();
         setUserState(user.newUserState);
       } else if (!localStorage.token) {
         setUserState(loggedOutState);
       }
     };
 
-    const getSubredditsState = async () => {
+    const getViewState = async () => {
       try {
         const subreddits = await getSubreddits();
         const newState = {
@@ -55,7 +59,7 @@ export default function App() {
     getUserState();
 
     if (viewState.isLoading) {
-      getSubredditsState();
+      getViewState();
     }
   }, [userState.user]);
 

@@ -20,16 +20,10 @@ export default class CommentForm extends Component {
   handleSubmit = async (e) => {
     e.preventDefault();
     const { submissionId, submissionType } = this.props;
-    const { userState } = this.context;
     const text = e.target.elements["comment"].value;
 
     if (text.length > 0) {
-      const comment = await postComment(
-        userState.token,
-        submissionId,
-        submissionType,
-        text
-      );
+      const comment = await postComment(submissionId, submissionType, text);
       this.props.addComment(submissionId, submissionType, comment);
       this.props.toggleCommentForm();
     } else {
@@ -47,7 +41,7 @@ export default class CommentForm extends Component {
 
   form = () => {
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit} className="comment-form">
         <label htmlFor="comment"></label>
         <textarea
           placeholder={this.placeholderText()}

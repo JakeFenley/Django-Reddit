@@ -49,7 +49,9 @@ export default class Comment extends Component {
             </p>
             <p>{comment.author_profile.username}</p>
             <div className="bottom-row">
-              <button onClick={this.toggleCommentForm}>Reply</button>
+              <button onClick={this.toggleCommentForm} className="text-button">
+                Reply
+              </button>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { subredditPosts } from "../api-calls/requests/subredditPosts";
 import Posts from "./posts/pages/Posts";
 import PropTypes from "prop-types";
@@ -23,7 +23,14 @@ export default class Subreddit extends Component {
 
     const posts = await subredditPosts(this.props.match.params.subreddit);
     this.setState({ posts: posts });
-    setViewState({ ...viewState, subreddit: posts[0].subreddit.name });
+    if (posts.length > 0) {
+      setViewState({ ...viewState, subreddit: posts[0].subreddit.name });
+    } else {
+      setViewState({
+        ...viewState,
+        subreddit: this.props.match.params.subreddit,
+      });
+    }
   };
 
   updateVote = (id, vote) => {
@@ -58,6 +65,16 @@ export default class Subreddit extends Component {
   }
 
   render() {
-    return <Posts posts={this.state.posts} updateVote={this.updateVote} />;
+    return (
+      <Fragment>
+        {this.state.posts.length > 0 ? (
+          <Posts posts={this.state.posts} updateVote={this.updateVote} />
+        ) : (
+          <div className="centered">
+            This subreddit is empty, add some posts!
+          </div>
+        )}
+      </Fragment>
+    );
   }
 }

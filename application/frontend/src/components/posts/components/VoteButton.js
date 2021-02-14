@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import DownArrow from "./down-arrow";
 import UpArrow from "./up-arrow";
 import PropTypes from "prop-types";
@@ -44,42 +44,40 @@ export default class VoteButton extends Component {
     }
   }
 
-  handleVoteClick = (e) => {
-    const { submitVote, direction, submissionId } = this.props;
-    let value;
-
+  getButtonValue = (e) => {
     if (e.target.dataset.selected === "true") {
-      value = 0;
-    } else if (direction === "upvote") {
+      return 0;
+    } else if (this.props.direction === "upvote") {
       e.target.dataset.selected = "false";
-      value = 1;
+      return 1;
     } else {
       e.target.dataset.selected = "false";
-      value = -1;
+      return -1;
     }
-
-    submitVote(submissionId, value);
   };
 
-  createButton() {
-    const { direction } = this.props;
+  handleVoteClick = (e) => {
+    const { userState, setAlertMessages } = this.context;
+    const { submitVote, submissionId } = this.props;
 
+    const value = this.getButtonValue(e);
+
+    if (userState.isAuthenticated) {
+      submitVote(submissionId, value);
+    } else {
+      setAlertMessages(["To vote on a submission please log in"]);
+    }
+  };
+
+  render() {
     return (
       <button
         className={this.state.className}
         data-selected={this.state.dataSelected}
         onClick={this.handleVoteClick}
       >
-        {direction === "upvote" ? UpArrow() : DownArrow()}
+        {this.props.direction === "upvote" ? UpArrow() : DownArrow()}
       </button>
-    );
-  }
-
-  render() {
-    return (
-      <Fragment>
-        {this.context.userState.isAuthenticated ? this.createButton() : null}
-      </Fragment>
     );
   }
 }

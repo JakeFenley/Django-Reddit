@@ -17,11 +17,10 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuContainer = useRef(null);
 
-  async function handleLogout(userState) {
-    const response = await logout(userState.token);
+  async function handleLogout() {
+    const response = await logout();
     if (response.success) {
       localStorage.removeItem("token");
-
       setUserState(loggedOutState);
     }
 
@@ -39,7 +38,7 @@ export default function Header() {
       <li>
         <button
           onClick={() => {
-            handleLogout(userState);
+            handleLogout();
           }}
         >
           Logout

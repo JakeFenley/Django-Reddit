@@ -10,7 +10,7 @@ export default class CreateSubreddit extends Component {
     const name = e.target.elements["name"].value;
 
     try {
-      const response = await postSubreddit(this.context.userState.token, name);
+      const response = await postSubreddit(name);
       console.log(response);
     } catch (err) {
       console.log(err);

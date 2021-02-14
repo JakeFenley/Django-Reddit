@@ -41,10 +41,8 @@ export default class Post extends Component {
   };
 
   submitVote = async (postId, value) => {
-    const { userState } = this.context;
-
     try {
-      const vote = await putVote(userState.token, value, postId, "post");
+      const vote = await putVote(value, postId, "post");
 
       this.setState((state) => {
         const updatedPost = state.post;
@@ -87,12 +85,11 @@ export default class Post extends Component {
   };
 
   componentDidMount = async () => {
-    const { viewState, setViewState, userState } = this.context;
+    const { viewState, setViewState } = this.context;
 
     try {
       const { params } = this.props.match;
-      const token = userState.isAuthenticated ? userState.token : null;
-      const post = await getPost(parseInt(params.post), token);
+      const post = await getPost(parseInt(params.post));
 
       if (!window.location.pathname.includes(post.subreddit.name)) {
         window.location.replace(`/r/${post.subreddit.name}/${post.id}`);
@@ -101,7 +98,7 @@ export default class Post extends Component {
       this.setState({
         post: {
           id: post.id,
-          title: post.title_sanitized,
+          title_sanitized: post.title_sanitized,
           text_sanitized: post.text_sanitized,
           author_profile: post.author_profile,
           score: post.score,
@@ -124,6 +121,17 @@ export default class Post extends Component {
       this.setState({ commentFormOpen: false });
     } else if (this.context.userState.isAuthenticated) {
       this.setState({ commentFormOpen: true });
+    }
+  };
+
+  renderDeleteButton = () => {
+    const { username } = this.state.post.author_profile;
+    const { userState } = this.context;
+
+    if (username === userState.user) {
+      return <button className="text-button">Delete</button>;
+    } else {
+      return null;
     }
   };
 
@@ -158,7 +166,13 @@ export default class Post extends Component {
                     />
                   </p>
                   <div className="bottom-row">
-                    <button onClick={this.toggleCommentForm}>Reply</button>
+                    <button
+                      onClick={this.toggleCommentForm}
+                      className="text-button"
+                    >
+                      Reply
+                    </button>
+                    {this.renderDeleteButton()}
                   </div>
                 </div>
               </div>

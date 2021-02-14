@@ -3,10 +3,10 @@ import success from "../helpers/loginSuccess";
 import error from "../helpers/loginError";
 import headerConfig from "../helpers/headerConfig";
 
-export const getUser = async (token) => {
+export const getUser = async () => {
   try {
-    const response = await axios.get("/api/auth/user", headerConfig(token));
-    return success(response, token);
+    const response = await axios.get("/api/auth/user", headerConfig());
+    return success(response);
   } catch (err) {
     return error(err);
   }

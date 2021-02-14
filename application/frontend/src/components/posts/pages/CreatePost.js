@@ -23,7 +23,6 @@ export default function CreatePost() {
     const title = e.target.elements["title"].value;
     const text = e.target.elements["text"].value;
     const response = await createPost(
-      userState.token,
       title,
       text,
       subreddit.id,

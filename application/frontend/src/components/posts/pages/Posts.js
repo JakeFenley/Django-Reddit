@@ -5,7 +5,6 @@ import { putVote } from "../../../api-calls/requests/putVote";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../../../context/GlobalContext";
 import VoteScoreWrapper from "../components/VoteScoreWrapper";
-
 import Interweave from "interweave";
 import { UrlMatcher } from "interweave-autolink";
 import PostTopRow from "../components/PostTopRow";
@@ -18,10 +17,8 @@ export default class Posts extends Component {
   };
 
   submitVote = async (postId, value) => {
-    const { userState } = this.context;
-
     try {
-      const vote = await putVote(userState.token, value, postId, "post");
+      const vote = await putVote(value, postId, "post");
 
       this.props.updateVote(postId, vote);
     } catch (err) {
@@ -58,7 +55,9 @@ export default class Posts extends Component {
                   matchers={[new UrlMatcher("url")]}
                 />
               </p>
-              <Link to={this.getPostLink(post)}>Comments</Link>
+              <Link to={this.getPostLink(post)} className="text-button">
+                Comments
+              </Link>
             </div>
           </div>
         ))}

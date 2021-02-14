@@ -1,7 +1,7 @@
 import axios from "axios";
 import headerConfig from "../helpers/headerConfig";
 
-export const postComment = async (token, id, type, text) => {
+export const postComment = async (id, type, text) => {
   const body = JSON.stringify({ text });
   let param;
 
@@ -15,7 +15,7 @@ export const postComment = async (token, id, type, text) => {
     const response = await axios.post(
       `/api/comment/${param}`,
       body,
-      headerConfig(token)
+      headerConfig()
     );
     console.log(response.data);
     return response.data;

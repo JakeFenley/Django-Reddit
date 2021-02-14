@@ -1,7 +1,6 @@
 export const initialState = {
   user: null,
   isAuthenticated: false,
-  token: null,
   isLoading: true,
 };
 
@@ -16,6 +15,5 @@ export const initialViewState = {
 export const loggedOutState = {
   user: null,
   isAuthenticated: false,
-  token: null,
   isLoading: false,
 };
