@@ -28,10 +28,6 @@ export default function App() {
   };
 
   useEffect(() => {
-    localStorage.csrf = document.querySelector(
-      '[name="csrfmiddlewaretoken"]'
-    ).value;
-
     const getUserState = async () => {
       if (localStorage.token && !userState.isAuthenticated) {
         const user = await getUser();

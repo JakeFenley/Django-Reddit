@@ -24,13 +24,9 @@ const modifyComment = (action, comment, objects) => {
 };
 
 export default function updateCommentTree(comments, id, objects, action) {
-  let commentFound = false;
   return comments.map((x) => {
-    if (commentFound) {
-      return x;
-    } else if (x.id === id) {
+    if (x.id === id) {
       x = modifyComment(action, x, objects);
-      commentFound = true;
       return x;
     } else if (x.comments_field.length > 0) {
       x.comments_field = updateCommentTree(

@@ -8,6 +8,7 @@ export const getUser = async () => {
     const response = await axios.get("/api/auth/user", headerConfig());
     return success(response);
   } catch (err) {
+    console.log(err);
     return error(err);
   }
 };

@@ -1,8 +1,10 @@
+import getCSRF from "./getCSRF";
+
 const headerConfig = () => {
   let config = {
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": localStorage.csrf,
+      "X-CSRFToken": getCSRF(),
     },
   };
 

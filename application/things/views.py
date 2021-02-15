@@ -8,6 +8,8 @@ from django.http import Http404
 from itertools import chain
 from django.db.models import Prefetch
 from django.utils.html import escape
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.utils.decorators import method_decorator
 
 
 class ListHomePosts(viewsets.ModelViewSet):
@@ -38,11 +40,11 @@ class SubredditPosts(viewsets.ModelViewSet):
 
 
 class CreateUpdateDestroyPost(viewsets.ModelViewSet):
+
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly
     ]
 
-    http_method_names = ['post', 'patch', 'delete']
     serializer_class = PostSerializer_limited
     queryset = Post.objects.all()
 
@@ -80,13 +82,12 @@ class CreateUpdateDestroyPost(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         obj = self.get_object()
-
         if(obj.owner == request.user):
             self.perform_destroy(obj)
-            return Response(status=204, data={"message": "Post deleted"})
+            return Response(status=status.HTTP_204_NO_CONTENT, data={"message": "Post deleted"})
 
         else:
-            return Response(status=403, data={"error": "403 Forbidden"})
+            return Response(status=status.HTTP_403_FORBIDDEN, data={"error": "403 Forbidden"})
 
 
 class SubredditView(viewsets.ModelViewSet):

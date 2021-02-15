@@ -11,6 +11,7 @@ import "./posts.scss";
 import updateCommentTree from "../updateCommentTree";
 import VoteScoreWrapper from "../components/VoteScoreWrapper";
 import PostTopRow from "../components/PostTopRow";
+import { deletePost } from "../../../api-calls/requests/deletePost";
 
 export default class Post extends Component {
   static contextType = GlobalContext;
@@ -124,12 +125,20 @@ export default class Post extends Component {
     }
   };
 
+  handleDelete = () => {
+    deletePost(this.state.post.id);
+  };
+
   renderDeleteButton = () => {
     const { username } = this.state.post.author_profile;
     const { userState } = this.context;
 
     if (username === userState.user) {
-      return <button className="text-button">Delete</button>;
+      return (
+        <button className="text-button" onClick={this.handleDelete}>
+          Delete
+        </button>
+      );
     } else {
       return null;
     }
