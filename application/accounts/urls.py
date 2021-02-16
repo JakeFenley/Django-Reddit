@@ -1,11 +1,15 @@
-from knox import views as knox_views
-from .views import RegisterAPI, LoginAPI, UserAPI
+from .views import CustomUserCreate, BlacklistTokenUpdateView
 from django.urls import path, include
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 urlpatterns = [
-    path('auth', include('knox.urls')),
-    path('auth/register', RegisterAPI.as_view()),
-    path('auth/login', LoginAPI.as_view()),
-    path('auth/user', UserAPI.as_view()),
-    path('auth/logout', knox_views.LogoutView.as_view(), name='knox_logout')
+    path('auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/register', CustomUserCreate.as_view(), name="create_user"),
+    path('auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/logout', BlacklistTokenUpdateView.as_view(),
+         name='blacklist')
 ]

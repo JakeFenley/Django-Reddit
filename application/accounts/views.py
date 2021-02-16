@@ -1,44 +1,37 @@
-from rest_framework.views import APIView
-from rest_framework import generics, permissions, parsers, renderers
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import status
 from rest_framework.response import Response
-from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
+from rest_framework.views import APIView
+from .serializers import CustomUserSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
 
 
-class RegisterAPI(generics.GenericAPIView):
-    serializer_class = RegisterSerializer
+class CustomUserCreate(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, format='json'):
+        serializer = CustomUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            user = serializer.save()
+            json = serializer.data
+            return Response(json, status=status.HTTP_201_CREATED)
+
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class BlacklistTokenUpdateView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = ()
 
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": AuthToken.objects.create(user)[1]
-        })
-
-
-class LoginAPI(generics.GenericAPIView):
-    serializer_class = LoginSerializer
-
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
-        _, token = AuthToken.objects.create(user)
-
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            'token': token
-        })
-
-
-class UserAPI(generics.RetrieveAPIView):
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-    serializer_class = UserSerializer
-
-    def get_object(self):
-        return self.request.user
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
