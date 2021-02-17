@@ -4,7 +4,8 @@ import headerConfig from "../helpers/headerConfig";
 export const createPost = async (title, text, subreddit, subreddit_name) => {
   const body = JSON.stringify({ title, text, subreddit, subreddit_name });
   try {
-    const response = await axios.post(`/api/post/`, body, headerConfig());
+    const headers = await headerConfig();
+    const response = await axios.post(`/api/post/`, body, headers);
     return response.data;
   } catch (err) {
     return err.errors;

@@ -7,11 +7,8 @@ export default async function registerUser(username, email, password) {
   const body = JSON.stringify({ username, email, password });
 
   try {
-    const response = await axios.post(
-      "/api/auth/register",
-      body,
-      headerConfig()
-    );
+    const headers = await headerConfig();
+    const response = await axios.post("/api/auth/register", body, headers);
     return success(response);
   } catch (err) {
     return error(err);

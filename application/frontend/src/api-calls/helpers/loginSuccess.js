@@ -1,12 +1,13 @@
-export default function success(response, token = response.data.token) {
-  const { username } = response.data.user ? response.data.user : response.data;
+export default function success(response, token = response.data.access) {
   localStorage.token = token ? token : localStorage.token;
+  localStorage.tokenCreatedAt = new Date();
+  const user = response.data.user;
   return {
     newUserState: {
-      user: username,
+      user: user,
       isAuthenticated: true,
       isLoading: false,
     },
-    messages: [`Hello ${username}`],
+    messages: [`Hello ${user}`],
   };
 }

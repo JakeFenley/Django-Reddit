@@ -5,7 +5,8 @@ import headerConfig from "../helpers/headerConfig";
 
 export const getUser = async () => {
   try {
-    const response = await axios.get("/api/auth/user", headerConfig());
+    const headers = await headerConfig();
+    const response = await axios.get("/api/auth/user", headers);
     return success(response);
   } catch (err) {
     console.log(err);
