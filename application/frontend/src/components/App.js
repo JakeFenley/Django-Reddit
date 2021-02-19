@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalContext";
-import { getUser } from "../api-calls/requests/getUser";
 import {
   initialState,
   initialErrorState,
@@ -16,6 +15,7 @@ import Wrapper from "./Wrapper";
 import "./styles.scss";
 import Loading from "./Loading";
 import { getSubreddits } from "../api-calls/requests/getSubredits";
+import { initialPageLoadAuthentication } from "../api-calls/requests/initialPageLoadAuthentication";
 
 export default function App() {
   const [userState, setUserState] = useState(initialState);
@@ -30,7 +30,7 @@ export default function App() {
   useEffect(() => {
     const getUserState = async () => {
       if (localStorage.token && !userState.isAuthenticated) {
-        const user = await getUser();
+        const user = await initialPageLoadAuthentication();
         setUserState(user.newUserState);
       } else if (!localStorage.token) {
         setUserState(loggedOutState);
