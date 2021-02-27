@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'django_heroku',
     'rest_framework_recursive',
     'mptt',
-    'html_sanitizer',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist'
 ]
@@ -101,7 +100,7 @@ WSGI_APPLICATION = 'server.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'reddit',
+        'NAME': 'reddit2',
         'USER': 'admin',
         'PASSWORD': 'password',
         'HOST': '127.0.0.1',
@@ -146,11 +145,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-
-# Configure Django App for Heroku.
-django_heroku.settings(locals())
-
-
 AUTH_USER_MODEL = "accounts.User"
 
 SIMPLE_JWT = {
@@ -180,3 +174,6 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# Configure Django App for Heroku.
+django_heroku.settings(locals())

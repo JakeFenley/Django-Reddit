@@ -7,6 +7,7 @@ boto3
 validate_email
 django-heroku
 gunicorn
-rest_framework_simplejwt
-rest_framework_recursive
-mptt
+PyJWT==1.7.1
+djangorestframework_simplejwt
+djangorestframework-recursive
+django-mptt

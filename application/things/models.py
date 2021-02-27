@@ -13,7 +13,7 @@ class Profile(Model):
 class Subreddit(Model):
     owner = ForeignKey(
         User, related_name="subreddits", to_field="username",   on_delete=CASCADE)
-    name = CharField(max_length=50, unique=True)
+    name = CharField(max_length=50, unique=True, validators=[letters_only])
 
 
 class Vote(Model):

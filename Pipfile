@@ -6,22 +6,18 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+djangorestframework = "*"
 django = "*"
-django-rest-framework = "*"
-django-rest-knox = "*"
-autopep8 = "*"
-psycopg2 = "*"
-knox = "*"
+psycopg2-binary = "*"
+cryptography = "*"
 jinja2 = "*"
 boto3 = "*"
 validate-email = "*"
 django-heroku = "*"
 gunicorn = "*"
-psycopg2-binary = "*"
-cryptography = "*"
-bleach = "*"
+djangorestframework-simplejwt = "*"
+djangorestframework-recursive = "*"
 django-mptt = "*"
-html-sanitizer = "*"
 
 [requires]
 python_version = "3.9"

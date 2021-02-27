@@ -3,6 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework import serializers
 from things.models import Profile
 from .models import User
+import re
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -18,14 +19,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         instance = self.Meta.model(**validated_data)
-        if password is not None:
+        if password is not None and re.match("^[0-9a-zA-Z]*$", validated_data['username']):
             instance.set_password(password)
             instance.save()
             profile = Profile.objects.create(
                 user=instance,
                 username=validated_data['username']
             )
-        return instance
+            return instance
+        else:
+            return None
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

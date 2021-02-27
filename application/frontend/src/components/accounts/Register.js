@@ -10,14 +10,19 @@ export default function Register() {
   const authRegister = async e => {
     e.preventDefault();
     const { username, email, password, password2 } = e.target;
+    const usernameValidation = new RegExp("^[0-9a-zA-Z]*$");
+    const usernameValidated = usernameValidation.test(username.value);
 
     if (
       !username.value ||
       !email.value ||
       !password.value ||
-      !password2.value
+      !password2.value ||
+      !usernameValidated
     ) {
-      setAlertMessages(["Fields must not be left blank"]);
+      setAlertMessages([
+        "Fields must not be left blank, Username must contain only alphanumeric characters",
+      ]);
       return;
     }
 
