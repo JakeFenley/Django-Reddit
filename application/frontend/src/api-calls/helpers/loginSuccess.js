@@ -4,6 +4,7 @@ export default function success(response, token = response.data.access) {
   localStorage.user = response.data.user
     ? response.data.user
     : localStorage.user;
+  console.log(response);
 
   return {
     newUserState: {

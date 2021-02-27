@@ -1,13 +1,13 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Redirect } from "react-router";
 import registerUser from "../../api-calls/requests/registerUser";
 import { GlobalContext } from "../../context/GlobalContext";
 export default function Register() {
-  const { userState, setUserState, setAlertMessages } = useContext(
-    GlobalContext
-  );
+  const { setAlertMessages } = useContext(GlobalContext);
 
-  const authRegister = async (e) => {
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+
+  const authRegister = async e => {
     e.preventDefault();
     const { username, email, password, password2 } = e.target;
 
@@ -22,14 +22,17 @@ export default function Register() {
     }
 
     if (password.value === password2.value && password.value.length > 7) {
-      const response = await registerUser(
+      const success = await registerUser(
         username.value,
         email.value,
         password.value
       );
-      setUserState(response.newUserState);
-
-      setAlertMessages(response.messages);
+      if (success) {
+        setRegisterSuccess(true);
+        setAlertMessages(["Account Created Please Login"]);
+      } else {
+        setAlertMessages(["Something went wrong, try again"]);
+      }
     } else {
       setAlertMessages([
         "Passwords must match and be at least 8 characters long",
@@ -37,27 +40,20 @@ export default function Register() {
     }
   };
 
-  if (userState.isAuthenticated) {
-    return <Redirect to="/" />;
+  if (registerSuccess) {
+    return <Redirect to="/login" />;
   }
 
   return (
     <form onSubmit={authRegister}>
       <label htmlFor="email">Email</label>
-      <input
-        type="email"
-        id="email"
-        name="email"
-        placeholder="Email*"
-        autoComplete="email"
-      ></input>
+      <input type="email" id="email" name="email" placeholder="Email*"></input>
       <label htmlFor="username">Username</label>
       <input
         type="text"
         id="username"
         name="username"
         placeholder="Username*"
-        autoComplete="off"
       ></input>
       <label htmlFor="password">Password</label>
       <input

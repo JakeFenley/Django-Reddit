@@ -8,7 +8,7 @@ export default function Login() {
     GlobalContext
   );
 
-  const authLogin = async (e) => {
+  const authLogin = async e => {
     e.preventDefault();
     const { email, password } = e.target;
 
