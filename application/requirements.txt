@@ -1,10 +1,12 @@
 djangorestframework
 Django
 psycopg2-binary
-knox
 cryptography
 Jinja2
 boto3
 validate_email
 django-heroku
 gunicorn
+rest_framework_simplejwt
+rest_framework_recursive
+mptt
